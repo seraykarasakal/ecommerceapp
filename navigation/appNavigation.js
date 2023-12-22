@@ -3,6 +3,7 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "../screens/HomeScreen";
+import DashboardScreen from "../screens/DashboardScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
 import LoginScreen from "../screens/LoginScreen";
 import SignUpScreen from "../screens/SignUpScreen";
@@ -12,11 +13,19 @@ const Stack = createNativeStackNavigator();
 
 export default function AppNavigation() {
     const { user } = useAuth();
+
     if (user) {
+        // Kullanıcı varsa, rolüne göre yönlendirme yap
+        const { email } = user; // Firebase'den gelen kullanıcı bilgilerine göre değiştirin
+
         return (
             <NavigationContainer>
-                <Stack.Navigator initialRouteName="Home">
-                    <Stack.Screen name="Home" options={{ headerShown: false }} component={HomeScreen} />
+                <Stack.Navigator initialRouteName="Dashboard">
+                    {email === "admin@gmail.com" ? (
+                        <Stack.Screen name="Dashboard" options={{ headerShown: false }} component={DashboardScreen} />
+                    ) : (
+                        <Stack.Screen name="Home" options={{ headerShown: false }} component={HomeScreen} />
+                    )}
                 </Stack.Navigator>
             </NavigationContainer>
         );
