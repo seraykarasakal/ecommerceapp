@@ -15,7 +15,17 @@ export default function LoginScreen() {
     const handleSubmit = async () => {
         if (email && password) {
             try {
+                // Firebase Authentication kullanarak giriş yap
                 await signInWithEmailAndPassword(auth, email, password);
+
+                // Kullanıcı adı admin@gmail.com ve şifre admin ise dashboard'a yönlendir
+                if (email === "admin@gmail.com" && password === "admin1") {
+                    // Dashboard ekranına yönlendirme kodu buraya eklenebilir
+                    navigation.navigate("Dashboard"); // Dashboard ekranına yönlendir
+                } else {
+                    // Diğer kullanıcılar için home ekranına yönlendirme kodu buraya eklenebilir
+                    navigation.navigate("Home"); // Home ekranına yönlendir
+                }
             } catch (err) {
                 console.log("got error: ", err.message);
             }
