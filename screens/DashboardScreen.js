@@ -1,7 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import { signOut } from "firebase/auth";
 import React from "react";
-import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { DatabaseConnection } from "../config/database-connection";
 import { auth } from "../config/firebase";
@@ -11,9 +11,6 @@ const db = DatabaseConnection.getConnection();
 const DashboardScreen = () => {
     const navigation = useNavigation();
     
-    const navigateToAddProduct = () => {
-        navigation.navigate('AddProduct');
-      };
 
     const handleLogout = async () => {
         try {
@@ -28,7 +25,12 @@ const DashboardScreen = () => {
         <SafeAreaView style={styles.container}>
             <View style={styles.content}>
                 <Text style={styles.text}>Dashboard Page</Text>
-                <Button title='Create Product' onPress={navigateToAddProduct}  />
+                <TouchableOpacity onPress={() => navigation.navigate("AddProduct")} style={styles.logoutButton}>
+                    <Text style={styles.buttonText}>Create Product</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate("ListProducts")} style={styles.logoutButton}>
+                    <Text style={styles.buttonText}>List Products</Text>
+                </TouchableOpacity>
                 <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
                     <Text style={styles.buttonText}>Logout</Text>
                 </TouchableOpacity>
