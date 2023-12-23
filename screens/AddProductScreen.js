@@ -2,6 +2,7 @@ import { useNavigation } from "@react-navigation/native";
 import { signOut } from "firebase/auth";
 import React, { useState } from "react";
 import { Alert, Button, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ArrowLeftIcon } from "react-native-heroicons/solid";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { DatabaseConnection } from "../config/database-connection";
 import { auth } from "../config/firebase";
@@ -59,6 +60,11 @@ const AddProductScreen = () => {
     };
     return (
         <SafeAreaView style={styles.container}>
+            <View className="flex-row justify-start">
+                <TouchableOpacity onPress={() => navigation.goBack()} className="bg-yellow-400 p-2 rounded-tr-2xl rounded-bl-2xl ml-4">
+                    <ArrowLeftIcon size="20" color="black" />
+                </TouchableOpacity>
+            </View>
             <View style={styles.content}>
                 <Text style={styles.text}>Create Product</Text>
                 <TextInput placeholder='Ürün adı' onChangeText={
@@ -70,7 +76,7 @@ const AddProductScreen = () => {
                 }
                     maxLength={255}
                     numberOfLines={4}
-                    multiline= {true}
+                    multiline={true}
                     style={{ textAlignVertical: 'top', padding: 10 }} />
                 <TextInput placeholder='Ürün fiyatı' onChangeText={
                     (productPrice => setProductPrice(productPrice))
@@ -78,7 +84,7 @@ const AddProductScreen = () => {
                     maxLength={5}
                     keyboardType="numeric"
                     style={{ padding: 10 }} />
-                <Button title="Gönder" onPress={createProduct}/>
+                <Button title="Gönder" onPress={createProduct} />
                 <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
                     <Text style={styles.buttonText}>Logout</Text>
                 </TouchableOpacity>
