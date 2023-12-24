@@ -1,4 +1,4 @@
-import { NavigationContainer } from "@react-navigation/native";
+/* import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React from "react";
 import useAuth from "../hooks/useAuth";
@@ -10,6 +10,7 @@ import ListProductsScreen from "../screens/ListProductsScreen";
 import LoginScreen from "../screens/LoginScreen";
 import SignUpScreen from "../screens/SignUpScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
+import UserManagerScreen from "../screens/UserManagerScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -26,12 +27,15 @@ export default function AppNavigation() {
                     {email === "admin@gmail.com" ? (
                         <>
                             <Stack.Screen name="Dashboard" options={{ headerShown: false }} component={DashboardScreen} />
-                            <Stack.Screen name="AddProduct" options={{ headerShown: false}} component={AddProductScreen}/>
-                            <Stack.Screen name="ListProducts" options={{ headerShown: false}} component={ListProductsScreen}/>
-                            <Stack.Screen name="EditProduct" options={{ headerShown: false}} component={EditProductScreen}/>
+                            <Stack.Screen name="AddProduct" options={{ headerShown: false }} component={AddProductScreen} />
+                            <Stack.Screen name="ListProducts" options={{ headerShown: false }} component={ListProductsScreen} />
+                            <Stack.Screen name="EditProduct" options={{ headerShown: false }} component={EditProductScreen} />
                         </>
                     ) : (
-                        <Stack.Screen name="Home" options={{ headerShown: false }} component={HomeScreen} />
+                        <>
+                            <Stack.Screen name="Home" options={{ headerShown: false }} component={HomeScreen} />
+                            <Stack.Screen name="UserManager" options={{ headerShown: false }} component={UserManagerScreen} />
+                        </>
                     )}
                 </Stack.Navigator>
             </NavigationContainer>
@@ -48,3 +52,31 @@ export default function AppNavigation() {
         );
     }
 }
+ */
+
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import UserManagerScreen from "../screens/UserManagerScreen";
+import AddUserScreen from "../screens/AddUserScreen";
+import ListUsersScreen from "../screens/ListUsersScreen";
+import EditUserScreen from "../screens/EditUserScreen";
+
+const Stack = createNativeStackNavigator();
+
+const App = () => {
+    return (
+        <NavigationContainer>
+            <Stack.Navigator initialRouteName="UserManager">
+                <>
+                    <Stack.Screen name="UserManager" options={{ headerShown: false }} component={UserManagerScreen} />
+                    <Stack.Screen name="AddUser" options={{ headerShown: false }} component={AddUserScreen} />
+                    <Stack.Screen name="ListUsers" options={{ headerShown: false }} component={ListUsersScreen} />
+                    <Stack.Screen name="EditUser" options={{ headerShown: false }} component={EditUserScreen} />
+                </>
+            </Stack.Navigator>
+        </NavigationContainer>
+    );
+};
+
+export default App;

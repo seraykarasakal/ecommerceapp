@@ -1,31 +1,41 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { signOut } from "firebase/auth";
 import { auth } from "../config/firebase";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
 
 export default function HomeScreen() {
+    const navigation = useNavigation();
+
     const handleLogout = async () => {
         await signOut(auth);
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.content}>
-                <Text style={styles.text}>Home Page - </Text>
-                <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-                    <Text style={styles.logoutButtonText}>Logout</Text>
-                </TouchableOpacity>
-            </View>
-        </SafeAreaView>
+        <View style={styles.container}>
+            <Navbar navigation={navigation} />
+            <SafeAreaView style={styles.Safecontainer}>
+                <View style={styles.content}>
+                    <Text style={styles.text}>Home Page - </Text>
+                    <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+                        <Text style={styles.logoutButtonText}>Logout</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+            <Footer navigation={navigation} />
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
+    },
+    Safecontainer: {
+        flex: 1,
     },
     content: {
         flexDirection: "row",

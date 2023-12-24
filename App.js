@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { DatabaseConnection } from './config/database-connection';
+import React, { useEffect } from "react";
+import { DatabaseConnection } from "./config/database-connection";
 import AppNavigation from "./navigation/appNavigation";
 
 const db = DatabaseConnection.getConnection();
@@ -15,7 +15,13 @@ export default function App() {
     useEffect(() => {
         db.transaction(function (txn) {
             txn.executeSql(
-                'CREATE TABLE IF NOT EXISTS table_products(product_id INTEGER PRIMARY KEY AUTOINCREMENT, product_name VARCHAR(30), product_description VARCHAR(255), product_price INT(5) )',
+                "CREATE TABLE IF NOT EXISTS table_products(product_id INTEGER PRIMARY KEY AUTOINCREMENT, product_name VARCHAR(30), product_description VARCHAR(255), product_price INT(5) )",
+                []
+            );
+        });
+        db.transaction(function (txn) {
+            txn.executeSql(
+                "CREATE TABLE IF NOT EXISTS table_users(user_id INTEGER PRIMARY KEY AUTOINCREMENT, first_name VARCHAR(30), last_name VARCHAR(30), phone_number VARCHAR(15), address VARCHAR(255))",
                 []
             );
         });

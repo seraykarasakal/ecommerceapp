@@ -148,6 +148,8 @@ const styles = StyleSheet.create({
         color: "#555",
         borderRadius: 20,
         marginBottom: 10,
+        paddingTop: 10,
+        paddingBottom: 10,
     },
     forgotPassword: {
         alignItems: "flex-end",
