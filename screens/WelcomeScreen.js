@@ -1,26 +1,27 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
 import React from "react";
+import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { themeColors } from "../theme";
 import { useNavigation } from "@react-navigation/native";
+import { themeColors } from "../theme";
 
 export default function WelcomeScreen() {
     const navigation = useNavigation();
+
     return (
-        <SafeAreaView className="flex-1" style={{ backgroundColor: themeColors.bg }}>
-            <View className="flex-1 flex justify-around my-4">
-                <Text className="text-white font-bold text-4xl text-center">Let's Get Started!</Text>
-                <View className="flex-row justify-center">
-                    <Image source={require("../assets/images/welcome.png")} style={{ width: 350, height: 350 }} />
+        <SafeAreaView style={styles.container}>
+            <View style={styles.content}>
+                <Text style={styles.title}>Let's Get Started!</Text>
+                <View style={styles.imageContainer}>
+                    <Image source={require("../assets/images/welcome.png")} style={styles.image} />
                 </View>
-                <View className="space-y-4">
-                    <TouchableOpacity onPress={() => navigation.navigate("SignUp")} className="py-3 bg-yellow-400 mx-7 rounded-xl">
-                        <Text className="text-xl font-bold text-center text-gray-700">Sign Up</Text>
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity onPress={() => navigation.navigate("SignUp")} style={styles.button}>
+                        <Text style={styles.buttonText}>Sign Up</Text>
                     </TouchableOpacity>
-                    <View className="flex-row justify-center">
-                        <Text className="text-white font-semibold">Already have an account?</Text>
+                    <View style={styles.loginContainer}>
+                        <Text style={styles.loginText}>Already have an account?</Text>
                         <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-                            <Text className="font-semibold text-yellow-400"> Log In</Text>
+                            <Text style={[styles.loginText, styles.loginLink]}> Log In</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -28,3 +29,58 @@ export default function WelcomeScreen() {
         </SafeAreaView>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: themeColors.bg,
+    },
+    content: {
+        flex: 1,
+        justifyContent: "space-around",
+        alignItems: "center",
+        marginVertical: 20,
+    },
+    title: {
+        color: "white",
+        fontSize: 28,
+        fontWeight: "bold",
+        textAlign: "center",
+    },
+    imageContainer: {
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    image: {
+        width: 350,
+        height: 350,
+        borderRadius: 10,
+    },
+    buttonContainer: {
+        alignItems: "center",
+    },
+    button: {
+        paddingVertical: 15,
+        paddingHorizontal: 30,
+        backgroundColor: "#FFD700",
+        borderRadius: 20,
+    },
+    buttonText: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#374151",
+    },
+    loginContainer: {
+        flexDirection: "row",
+        marginTop: 15,
+        alignItems: "center",
+    },
+    loginText: {
+        color: "white",
+        fontWeight: "600",
+    },
+    loginLink: {
+        color: "#FFD700",
+        marginLeft: 5,
+    },
+});
