@@ -12,8 +12,8 @@ import SignUpScreen from "../screens/SignUpScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
 import UserManagerScreen from "../screens/UserManagerScreen";
 import AddUserScreen from "../screens/AddUserScreen";
-import ListUsersScreen from "../screens/ListUsersScreen";
 import EditUserScreen from "../screens/EditUserScreen";
+import ListUsersScreen from "../screens/ListUsersScreen";
 
 const Stack = createNativeStackNavigator();
 
