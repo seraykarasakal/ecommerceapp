@@ -1,13 +1,10 @@
-import { View, Text, TouchableOpacity, Image, TextInput } from "react-native";
 import React, { useState } from "react";
-import { themeColors } from "../theme";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { ArrowLeftIcon } from "react-native-heroicons/solid";
+import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebase";
+import Navbar from "./Navbar";
 
-// subscribe for more videos like this :)
 export default function SignUpScreen() {
     const navigation = useNavigation();
     const [email, setEmail] = useState("");
@@ -22,58 +19,125 @@ export default function SignUpScreen() {
             }
         }
     };
+
     return (
-        <View className="flex-1 bg-white" style={{ backgroundColor: themeColors.bg }}>
-            <SafeAreaView className="flex">
-                <View className="flex-row justify-start">
-                    <TouchableOpacity onPress={() => navigation.goBack()} className="bg-yellow-400 p-2 rounded-tr-2xl rounded-bl-2xl ml-4">
-                        <ArrowLeftIcon size="20" color="black" />
-                    </TouchableOpacity>
-                </View>
-                <View className="flex-row justify-center">
-                    <Image source={require("../assets/images/signup.png")} style={{ width: 165, height: 110 }} />
-                </View>
-            </SafeAreaView>
-            <View className="flex-1 bg-white px-8 pt-8" style={{ borderTopLeftRadius: 50, borderTopRightRadius: 50 }}>
-                <View className="form space-y-2">
-                    <Text className="text-gray-700 ml-4">Email Address</Text>
+        <View style={[styles.container]}>
+            <Navbar navigation={navigation} />
+            <View style={styles.formContainer}>
+                <View style={styles.form}>
+                    <Text style={styles.label}>Email Address</Text>
+                    <TextInput style={styles.input} value={email} onChangeText={(value) => setEmail(value)} placeholder="Enter Email" />
+                    <Text style={styles.label}>Password</Text>
                     <TextInput
-                        className="p-4 bg-gray-100 text-gray-700 rounded-2xl mb-3"
-                        value={email}
-                        onChangeText={(value) => setEmail(value)}
-                        placeholder="Enter Email"
-                    />
-                    <Text className="text-gray-700 ml-4">Password</Text>
-                    <TextInput
-                        className="p-4 bg-gray-100 text-gray-700 rounded-2xl mb-7"
+                        style={styles.input}
                         secureTextEntry
                         value={password}
                         onChangeText={(value) => setPassword(value)}
                         placeholder="Enter Password"
                     />
-                    <TouchableOpacity className="py-3 bg-yellow-400 rounded-xl" onPress={handleSubmit}>
-                        <Text className="text-xl font-bold text-center text-gray-700">Sign Up</Text>
+                    <TouchableOpacity style={styles.signUpButton} onPress={handleSubmit}>
+                        <Text style={styles.signUpButtonText}>Sign Up</Text>
                     </TouchableOpacity>
                 </View>
-                <Text className="text-xl text-gray-700 font-bold text-center py-5">Or</Text>
-                <View className="flex-row justify-center space-x-12">
-                    <TouchableOpacity className="p-2 bg-gray-100 rounded-2xl">
-                        <Image source={require("../assets/icons/google.png")} className="w-10 h-10" />
+                <Text style={styles.orText}>Or</Text>
+                <View style={styles.socialButtons}>
+                    <TouchableOpacity style={styles.socialButton}>
+                        <Image source={require("../assets/icons/google.png")} style={styles.socialIcon} />
                     </TouchableOpacity>
-                    <TouchableOpacity className="p-2 bg-gray-100 rounded-2xl">
-                        <Image source={require("../assets/icons/apple.png")} className="w-10 h-10" />
+                    <TouchableOpacity style={styles.socialButton}>
+                        <Image source={require("../assets/icons/apple.png")} style={styles.socialIcon} />
                     </TouchableOpacity>
-                    <TouchableOpacity className="p-2 bg-gray-100 rounded-2xl">
-                        <Image source={require("../assets/icons/facebook.png")} className="w-10 h-10" />
+                    <TouchableOpacity style={styles.socialButton}>
+                        <Image source={require("../assets/icons/facebook.png")} style={styles.socialIcon} />
                     </TouchableOpacity>
                 </View>
-                <View className="flex-row justify-center mt-7">
-                    <Text className="text-gray-500 font-semibold">Already have an account?</Text>
+                <View style={styles.loginLink}>
+                    <Text style={styles.loginText}>Already have an account?</Text>
                     <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-                        <Text className="font-semibold text-yellow-500"> Login</Text>
+                        <Text style={[styles.loginText, styles.loginLinkText]}> Login</Text>
                     </TouchableOpacity>
                 </View>
             </View>
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        paddingTop: 15,
+        backgroundColor: "#877dfa",
+    },
+
+    formContainer: {
+        borderTopLeftRadius: 50,
+        borderTopRightRadius: 50,
+        flex: 1,
+        backgroundColor: "white",
+        paddingHorizontal: 8,
+        paddingTop: 8,
+    },
+    form: {
+        flex: 1,
+        justifyContent: "center",
+        paddingTop: 20,
+    },
+    label: {
+        color: "#555",
+        marginLeft: 20,
+    },
+    input: {
+        padding: 20,
+        backgroundColor: "#EEE",
+        color: "#555",
+        borderRadius: 20,
+        marginBottom: 10,
+    },
+    signUpButton: {
+        backgroundColor: "#FFD700",
+        padding: 15,
+        borderRadius: 20,
+    },
+    signUpButtonText: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#374151",
+        textAlign: "center",
+    },
+    orText: {
+        fontSize: 20,
+        color: "#555",
+        fontWeight: "bold",
+        textAlign: "center",
+        marginTop: 20,
+        marginBottom: 10,
+    },
+    socialButtons: {
+        flexDirection: "row",
+        justifyContent: "center",
+        spaceBetween: 12,
+    },
+    socialButton: {
+        padding: 10,
+        backgroundColor: "#EEE",
+        borderRadius: 20,
+    },
+    socialIcon: {
+        width: 40,
+        height: 40,
+    },
+    loginLink: {
+        flexDirection: "row",
+        justifyContent: "center",
+        marginTop: 7,
+    },
+    loginText: {
+        color: "#777",
+        fontWeight: "600",
+    },
+    loginLinkText: {
+        color: "#FFD700",
+        marginLeft: 5,
+        marginBottom: 50,
+    },
+});

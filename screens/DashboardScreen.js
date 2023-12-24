@@ -7,10 +7,8 @@ import { DatabaseConnection } from "../config/database-connection";
 import { auth } from "../config/firebase";
 const db = DatabaseConnection.getConnection();
 
-
 const DashboardScreen = () => {
     const navigation = useNavigation();
-    
 
     const handleLogout = async () => {
         try {
