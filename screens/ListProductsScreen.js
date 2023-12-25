@@ -1,15 +1,48 @@
 import { useIsFocused, useNavigation } from "@react-navigation/native";
-import React, { useEffect, useState } from 'react';
-import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { ArrowLeftIcon, ChevronDoubleRightIcon } from "react-native-heroicons/solid";
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { Alert, FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ArrowLeftIcon, ChevronDoubleRightIcon, TrashIcon } from "react-native-heroicons/solid";
 import { DatabaseConnection } from '../config/database-connection';
 
 const db = DatabaseConnection.getConnection();
 
+const RefreshContext = createContext();
+
+const RefreshProvider = ({ children }) => {
+    const [refresh, setRefresh] = useState(false);
+
+    const handleRefresh = () => {
+        setRefresh(!refresh);
+    };
+
+    return (
+        <RefreshContext.Provider value={{ refresh, handleRefresh }}>
+            {children}
+        </RefreshContext.Provider>
+    );
+};
+const useRefresh = () => {
+    return useContext(RefreshContext);
+};
+
+
+
 const ListProducts = () => {
+    const [refresh, setRefresh] = useState(false);
+
+
 
     const navigation = useNavigation();
     let [flatListItems, setFlatListItems] = useState([]);
+    const handleRefresh = () => {
+        setRefresh(!refresh);
+        // FlatList'in otomatik olarak yeniden yüklenmesi için flatListItems state'ini güncelle
+        setFlatListItems([...flatListItems]); // Bu, flatListItems'in referansını değiştirecek ve FlatList'i tetikleyecektir
+    };
+    const handlerPressForDelete = (id) => {
+        deleteProduct(id);
+        handleRefresh();
+    }
     const isFocused = useIsFocused();
     useEffect(() => {
         if (isFocused) {
@@ -27,15 +60,50 @@ const ListProducts = () => {
                 )
             });
         }
-    }, [isFocused]);
+    }, [isFocused, refresh]);
+
+
+    let deleteProduct = (id) => {
+        console.log(id + ' ID');
+        alert('You are going to delete this product!');
+        db.transaction((tx) => {
+            tx.executeSql(
+                'DELETE  FROM table_products WHERE ? = product_id',
+                [id],
+                (tx, results) => {
+                    if (results.rowsAffected > 0) {
+                        Alert.alert(
+                            'Basarili!',
+                            'Ürün silme başarili!',
+                            [
+                                {
+                                    text: 'Ok',
+                                    onPress: () => {
+                                        handleRefresh();
+                                        navigation.navigate('ListProducts');
+                                    },
+                                },
+                            ],
+                            { cancelable: true }
+                        );
+                    } else alert('Ürün silme başarısız!');
+                }
+            )
+        });
+    };
+
 
     let listProductsView = (item) => {
         return (
+
             <View
                 key={item.product_id}
                 style={{ backgroundColor: '#EEE', marginTop: 20, padding: 30, borderRadius: 10 }}>
                 <TouchableOpacity onPress={() => navigation.navigate('EditProduct', { id: item.product_id })}>
                     <ChevronDoubleRightIcon size="20" color="black" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => deleteProduct(item.product_id)}>
+                    <TrashIcon size="20" color="black" />
                 </TouchableOpacity>
                 <Text style={styles.textheader}>Id</Text>
                 <Text style={styles.textbottom}>{item.product_id}</Text>
@@ -51,10 +119,14 @@ const ListProducts = () => {
 
 
             </View>
+
         );
     };
 
+
+
     return (
+
         <SafeAreaView style={{ flex: 1 }}>
             <View style={{ padding: 20 }}>
                 <TouchableOpacity onPress={() => navigation.goBack()} className="bg-yellow-400 p-2 rounded-tr-2xl rounded-bl-2xl ml-4">
@@ -75,8 +147,10 @@ const ListProducts = () => {
 
             </View>
         </SafeAreaView>
+
     );
 };
+
 const styles = StyleSheet.create({
     textheader: {
         color: '#111',

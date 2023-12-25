@@ -3,28 +3,27 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { DatabaseConnection } from "../config/database-connection";
 import { HeartIcon } from "react-native-heroicons/solid";
-import Navbar from "./Navbar";
 
 const db = DatabaseConnection.getConnection();
 
 // ... Diğer import'lar ...
 
-export default function HomeScreen() {
+export default function FavoriteProductsScreen() {
     const navigation = useNavigation();
     const [products, setProducts] = useState([]);
 
-    const getProductsFromDatabase = () => {
+    const getFavoriteProductsFromDatabase = () => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
                 tx.executeSql(
-                    "SELECT * FROM table_products",
+                    "SELECT * FROM table_products WHERE is_favorite = 1",
                     [],
                     (_, { rows }) => {
-                        const products = [];
+                        const favoriteProducts = [];
                         for (let i = 0; i < rows.length; i++) {
-                            products.push(rows.item(i));
+                            favoriteProducts.push(rows.item(i));
                         }
-                        resolve(products);
+                        resolve(favoriteProducts);
                     },
                     (_, error) => {
                         reject(error);
@@ -35,22 +34,22 @@ export default function HomeScreen() {
     };
 
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchFavoriteProducts = async () => {
             try {
-                const products = await getProductsFromDatabase();
-                setProducts(products);
+                const favoriteProducts = await getFavoriteProductsFromDatabase();
+                setProducts(favoriteProducts);
             } catch (error) {
-                console.error("Ürünleri çekerken bir hata oluştu: ", error);
+                console.error("Favori ürünleri çekerken bir hata oluştu: ", error);
             }
         };
 
-        fetchProducts();
+        fetchFavoriteProducts();
     }, []);
 
-    const toggleFavorite = async (productId, isFavorite) => {
+    const handleToggleFavorite = async (productId, isFavorite) => {
         try {
             await toggleFavoriteInDatabase(productId, isFavorite);
-            const updatedProducts = await getProductsFromDatabase();
+            const updatedProducts = await getFavoriteProductsFromDatabase();
             setProducts(updatedProducts);
         } catch (error) {
             console.error("Favori durumu güncellenirken bir hata oluştu: ", error);
@@ -80,19 +79,15 @@ export default function HomeScreen() {
 
     return (
         <View style={styles.container}>
-            <Navbar navigation={navigation} />
-            <TouchableOpacity onPress={() => navigation.navigate("FavoriteProducts")}>
-                <Text style={styles.text}>Favori Ürünleri Listele</Text>
-            </TouchableOpacity>
-            <Text>Ürünler</Text>
+            <Text>Favori Ürünler</Text>
             <View style={styles.products}>
                 {products.map((product) => (
                     <View key={product.product_id} style={styles.productContainer}>
                         <Text>
                             {product.product_name} - {product.product_price}
                         </Text>
-                        <TouchableOpacity onPress={() => toggleFavorite(product.product_id, !product.is_favorite)}>
-                            <HeartIcon size={24} color={product.is_favorite ? "red" : "gray"} />
+                        <TouchableOpacity onPress={() => handleToggleFavorite(product.product_id, false)}>
+                            <HeartIcon size={24} color="red" />
                         </TouchableOpacity>
                     </View>
                 ))}
@@ -107,11 +102,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 10,
-    },
-    text: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginBottom: 10,
     },
     products: {
         flex: 1,
