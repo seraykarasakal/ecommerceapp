@@ -15,6 +15,7 @@ import SignUpScreen from "../screens/SignUpScreen";
 import UserManagerScreen from "../screens/UserManagerScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
 import FavoriteProductsScreen from "../screens/FavoriteProductsScreen";
+
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigation() {
