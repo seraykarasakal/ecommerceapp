@@ -17,9 +17,6 @@ export default function UserManagerScreen() {
                 <TouchableOpacity onPress={() => navigation.navigate("ListUsers")}>
                     <Text style={styles.Text}>Kullanıcıları listele</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate("EditUser")}>
-                    <Text style={styles.Text}>Kullanıcıları Güncelle</Text>
-                </TouchableOpacity>
             </View>
             <Footer navigation={navigation} />
         </View>
