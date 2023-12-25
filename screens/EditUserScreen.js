@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { Alert, Button, KeyboardAvoidingView, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { ArrowLeftIcon } from "react-native-heroicons/solid";
 import { DatabaseConnection } from "../config/database-connection";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
 const db = DatabaseConnection.getConnection();
 
 const EditUser = () => {
@@ -88,9 +90,7 @@ const EditUser = () => {
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <View style={{ padding: 20 }}>
-                <TouchableOpacity onPress={() => navigation.goBack()} className="bg-yellow-400 p-2 rounded-tr-2xl rounded-bl-2xl ml-4">
-                    <ArrowLeftIcon size="20" color="black" />
-                </TouchableOpacity>
+                <Navbar navigation={navigation} />
             </View>
             <View style={{ flex: 1, backgroundColor: "white" }}>
                 <View style={{ flex: 1 }}>
