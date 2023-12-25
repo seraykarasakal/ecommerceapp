@@ -13,10 +13,8 @@ import ListUsersScreen from "../screens/ListUsersScreen";
 import LoginScreen from "../screens/LoginScreen";
 import SignUpScreen from "../screens/SignUpScreen";
 import UserManagerScreen from "../screens/UserManagerScreen";
-
 import WelcomeScreen from "../screens/WelcomeScreen";
-
-
+import FavoriteProductsScreen from "../screens/FavoriteProductsScreen";
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigation() {
@@ -43,7 +41,7 @@ export default function AppNavigation() {
                             <Stack.Screen name="AddUser" options={{ headerShown: false }} component={AddUserScreen} />
                             <Stack.Screen name="ListUsers" options={{ headerShown: false }} component={ListUsersScreen} />
                             <Stack.Screen name="EditUser" options={{ headerShown: false }} component={EditUserScreen} />
-
+                            <Stack.Screen name="FavoriteProducts" options={{ headerShown: false }} component={FavoriteProductsScreen} />
                         </>
                     )}
                 </Stack.Navigator>
@@ -61,4 +59,3 @@ export default function AppNavigation() {
         );
     }
 }
-
