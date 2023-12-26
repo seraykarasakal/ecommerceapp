@@ -190,7 +190,7 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 10,
+        padding: 50,
     },
     text: {
         fontSize: 18,

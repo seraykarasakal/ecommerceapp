@@ -15,7 +15,6 @@ import LoginScreen from "../screens/LoginScreen";
 import SignUpScreen from "../screens/SignUpScreen";
 import UserManagerScreen from "../screens/UserManagerScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
-import FavoriteProductsScreen from "../screens/FavoriteProductsScreen";
 import CartScreen from "../screens/CartScreen";
 import PaymentScreen from "../screens/PaymentScreen";
 
