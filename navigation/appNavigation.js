@@ -7,6 +7,7 @@ import AddUserScreen from "../screens/AddUserScreen";
 import DashboardScreen from "../screens/DashboardScreen";
 import EditProductScreen from "../screens/EditProductScreen";
 import EditUserScreen from "../screens/EditUserScreen";
+import FavoriteProductsScreen from "../screens/FavoriteProductsScreen";
 import HomeScreen from "../screens/HomeScreen";
 import ListProductsScreen from "../screens/ListProductsScreen";
 import ListUsersScreen from "../screens/ListUsersScreen";
@@ -14,9 +15,7 @@ import LoginScreen from "../screens/LoginScreen";
 import SignUpScreen from "../screens/SignUpScreen";
 import UserManagerScreen from "../screens/UserManagerScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
-import FavoriteProductsScreen from "../screens/FavoriteProductsScreen";
 const Stack = createNativeStackNavigator();
-
 export default function AppNavigation() {
     const { user } = useAuth();
 
@@ -26,7 +25,7 @@ export default function AppNavigation() {
 
         return (
             <NavigationContainer>
-                <Stack.Navigator initialRouteName="Dashboard">
+                <Stack.Navigator initialRouteName="Dashboard" screenOptions={{ animation: 'none' }}>
                     {email === "admin@gmail.com" ? (
                         <>
                             <Stack.Screen name="Dashboard" options={{ headerShown: false }} component={DashboardScreen} />
@@ -50,7 +49,7 @@ export default function AppNavigation() {
     } else {
         return (
             <NavigationContainer>
-                <Stack.Navigator initialRouteName="Welcome">
+                <Stack.Navigator initialRouteName="Welcome" screenOptions={{ animation: 'none' }}>
                     <Stack.Screen name="Welcome" options={{ headerShown: false }} component={WelcomeScreen} />
                     <Stack.Screen name="Login" options={{ headerShown: false }} component={LoginScreen} />
                     <Stack.Screen name="SignUp" options={{ headerShown: false }} component={SignUpScreen} />
