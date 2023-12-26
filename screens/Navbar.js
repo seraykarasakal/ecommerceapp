@@ -1,34 +1,73 @@
+import { useNavigation, useRoute } from "@react-navigation/native";
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { ArrowLeftIcon } from "react-native-heroicons/solid";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { HeartIcon, HomeIcon, ShoppingCartIcon, UserIcon } from "react-native-heroicons/solid";
+const Navbar = ( ) => {
+    const route = useRoute();
+    const navigation = useNavigation();
+    const isDashboardScreen = route.name == 'Dashboard';
+    const isAddProductScreen = route.name == 'AddProduct';
+    const isListProductsScreen = route.name == 'ListProducts';
 
-const Navbar = ({ navigation }) => {
+
+
+
     return (
-        <SafeAreaView style={styles.safeArea}>
-            <View style={styles.backButton}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButtonIcon}>
-                    <ArrowLeftIcon size={20} color="black" />
+
+
+        <View style={styles.NavContainer}>
+            <View style={styles.NavBar}>
+                <TouchableOpacity onPress={() => navigation.navigate('Dashboard')} style={styles.IconBehave}
+                    android_ripple={{ borderless: true, radiues: 50 }}>
+                    <HomeIcon style={[styles.Icon, isDashboardScreen ? styles.activeButton : {}]} />
                 </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('AddProduct')} style={styles.IconBehave}
+                    android_ripple={{ borderless: true, radiues: 50 }}>
+                    <ShoppingCartIcon style={[styles.Icon, isAddProductScreen ? styles.activeButton : {}]} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('ListProducts')} style={styles.IconBehave}
+                    android_ripple={{ borderless: true, radiues: 50 }}>
+                    <HeartIcon style={[styles.Icon, isListProductsScreen ? styles.activeButton : {}]} />
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => navigation.navigate('ListProducts')} style={styles.IconBehave}
+                    android_ripple={{ borderless: true, radiues: 50 }}>
+                    <UserIcon color='#877dfa' />
+                </TouchableOpacity>
+
             </View>
-        </SafeAreaView>
+        </View >
+
+
+
     );
 };
 
 const styles = StyleSheet.create({
-    safeArea: {
-        padding: 50,
+    NavContainer: {
+        position: 'absolute',
+        alignItems: 'center',
+        bottom: 30,
     },
-    backButton: {
-        position: "absolute",
-        top: 20,
-        left: 20,
+    NavBar: {
+        flexDirection: 'row',
+        backgroundColor: '#eee',
+        width: '90%',
+        justifyContent: 'space-evenly',
+        borderRadius: 40,
     },
-    backButtonIcon: {
-        backgroundColor: "#FFD700",
-        padding: 10,
-        borderRadius: 10,
+    Icon: {
+        height: 26,
+        width: 26,
+        color: '#877dfa',
     },
+    IconBehave: {
+        padding: 14,
+        backgroundColor: 'white',
+    },
+    activeButton: {
+        color: 'black',
+    }
 });
 
 export default Navbar;

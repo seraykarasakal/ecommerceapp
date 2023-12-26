@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Alert, FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ArrowLeftIcon, ChevronDoubleRightIcon, TrashIcon } from "react-native-heroicons/solid";
 import { DatabaseConnection } from '../config/database-connection';
-
+import Navbar from "./Navbar";
 const db = DatabaseConnection.getConnection();
 
 const RefreshContext = createContext();
@@ -127,25 +127,28 @@ const ListProducts = () => {
 
     return (
 
-        <SafeAreaView style={{ flex: 1 }}>
-            <View style={{ padding: 20 }}>
-                <TouchableOpacity onPress={() => navigation.goBack()} className="bg-yellow-400 p-2 rounded-tr-2xl rounded-bl-2xl ml-4">
-                    <ArrowLeftIcon size="20" color="black" />
-                </TouchableOpacity>
-            </View>
-            <View style={{ flex: 1, backgroundColor: 'white' }}>
-                <View style={{ flex: 1 }}>
-
-                    <FlatList
-                        style={{ marginTop: 30 }}
-                        contentContainerStyle={{ paddingHorizontal: 20 }}
-                        data={flatListItems}
-                        keyExtractor={(item, index) => index.toString()}
-                        renderItem={({ item }) => listProductsView(item)}
-                    />
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#877dfa', alignItems: 'center', justifyContent: 'center' }}>
+            
+                <View style={{ padding: 30 }}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} className="bg-yellow-400 p-2 rounded-tr-2xl rounded-bl-2xl ml-4">
+                        <ArrowLeftIcon size="20" color="black" />
+                    </TouchableOpacity>
                 </View>
+                <View style={{ flex: 1, backgroundColor: 'white', padding: 100 }}>
+                    <View style={{ flex: 1 }}>
 
-            </View>
+                        <FlatList
+                            style={{ marginTop: 30 }}
+                            contentContainerStyle={{ paddingHorizontal: 20 }}
+                            data={flatListItems}
+                            keyExtractor={(item, index) => index.toString()}
+                            renderItem={({ item }) => listProductsView(item)}
+                        />
+                    </View>
+
+                </View>
+            
+            <Navbar navigation={navigation}/>
         </SafeAreaView>
 
     );

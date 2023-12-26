@@ -6,6 +6,7 @@ import { ArrowLeftIcon } from "react-native-heroicons/solid";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { DatabaseConnection } from "../config/database-connection";
 import { auth } from "../config/firebase";
+import Navbar from "./Navbar";
 
 const db = DatabaseConnection.getConnection();
 
@@ -89,6 +90,7 @@ const AddProductScreen = () => {
                     <Text style={styles.buttonText}>Logout</Text>
                 </TouchableOpacity>
             </View>
+            <Navbar navigation = {navigation}/>
         </SafeAreaView>
     );
 };
@@ -96,11 +98,14 @@ const AddProductScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: '#877dfa',
         justifyContent: "center",
         alignItems: "center",
     },
     content: {
         flex: 1,
+        padding:30,
+        margin:10,
         justifyContent: "center",
         alignItems: "center",
     },
