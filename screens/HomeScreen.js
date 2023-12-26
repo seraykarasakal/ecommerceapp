@@ -1,23 +1,33 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 import { DatabaseConnection } from "../config/database-connection";
-import { HeartIcon } from "react-native-heroicons/solid";
+import { HeartIcon, ShoppingCartIcon } from "react-native-heroicons/solid";
 import Navbar from "./Navbar";
+import Footer from "./Footer";
+import { useNavigation } from "@react-navigation/native";
+import { signOut } from "firebase/auth";
+import { auth } from "../config/firebase";
 
 const db = DatabaseConnection.getConnection();
 
-// ... Diğer import'lar ...
-
-export default function HomeScreen() {
+const HomeScreen = () => {
     const navigation = useNavigation();
     const [products, setProducts] = useState([]);
+
+    const fetchProducts = useCallback(async () => {
+        try {
+            const products = await getProductsFromDatabase();
+            setProducts(products);
+        } catch (error) {
+            console.error("Ürünleri çekerken bir hata oluştu: ", error);
+        }
+    }, []);
 
     const getProductsFromDatabase = () => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
                 tx.executeSql(
-                    "SELECT * FROM table_products",
+                    "SELECT p.*, f.product_id IS NOT NULL AS is_favorite, c.product_id IS NOT NULL AS is_cart FROM table_products p LEFT JOIN favorites f ON p.product_id = f.product_id LEFT JOIN table_cart c ON p.product_id = c.product_id",
                     [],
                     (_, { rows }) => {
                         const products = [];
@@ -27,6 +37,7 @@ export default function HomeScreen() {
                         resolve(products);
                     },
                     (_, error) => {
+                        console.error("Veritabanından ürünleri çekerken bir hata oluştu:", error);
                         reject(error);
                     }
                 );
@@ -34,55 +45,122 @@ export default function HomeScreen() {
         });
     };
 
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                const products = await getProductsFromDatabase();
-                setProducts(products);
-            } catch (error) {
-                console.error("Ürünleri çekerken bir hata oluştu: ", error);
-            }
-        };
+    const addFavoriteProduct = useCallback((productId) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                "INSERT INTO favorites (product_id) VALUES (?)",
+                [productId],
+                (_, results) => {
+                    console.log("Favori ürün eklendi:", results);
+                },
+                (_, error) => {
+                    console.error("Favori ürün eklenirken bir hata oluştu:", error);
+                }
+            );
+        });
+    }, []);
 
-        fetchProducts();
+    const addCart = useCallback((productId) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                "INSERT INTO table_cart (product_id) VALUES (?)",
+                [productId],
+                (_, results) => {
+                    console.log("Ürün sepete eklendi:", results);
+                },
+                (_, error) => {
+                    console.error("Ürün sepete eklenirken bir hata oluştu:", error);
+                }
+            );
+        });
+    }, []);
+
+    const removeFavoriteProduct = useCallback((productId) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                "DELETE FROM favorites WHERE product_id = ?",
+                [productId],
+                (_, results) => {
+                    console.log("Favori ürün kaldırıldı:", results);
+                },
+                (_, error) => {
+                    console.error("Favori ürün kaldırılırken bir hata oluştu:", error);
+                }
+            );
+        });
+    }, []);
+
+    const removeCart = useCallback((productId) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                "DELETE FROM table_cart WHERE product_id = ?",
+                [productId],
+                (_, results) => {
+                    console.log("Ürün sepetten kaldırıldı:", results);
+                },
+                (_, error) => {
+                    console.error("Ürün sepetten kaldırılırken bir hata oluştu:", error);
+                }
+            );
+        });
     }, []);
 
     const toggleFavorite = async (productId, isFavorite) => {
         try {
-            await toggleFavoriteInDatabase(productId, isFavorite);
-            const updatedProducts = await getProductsFromDatabase();
-            setProducts(updatedProducts);
+            if (isFavorite) {
+                await removeFavoriteProduct(productId);
+            } else {
+                await addFavoriteProduct(productId);
+            }
+
+            // Favori durumu güncellenmiş ürünleri setProducts aracılığıyla güncelle
+            await fetchProducts();
         } catch (error) {
             console.error("Favori durumu güncellenirken bir hata oluştu: ", error);
         }
     };
 
-    const toggleFavoriteInDatabase = (productId, isFavorite) => {
-        return new Promise((resolve, reject) => {
-            db.transaction((tx) => {
-                tx.executeSql(
-                    "UPDATE table_products SET is_favorite = ? WHERE product_id = ?",
-                    [isFavorite ? 0 : 1, productId],
-                    (_, { rowsAffected }) => {
-                        if (rowsAffected > 0) {
-                            resolve();
-                        } else {
-                            reject(new Error("Ürün favori durumu güncellenemedi."));
-                        }
-                    },
-                    (_, error) => {
-                        reject(error);
-                    }
-                );
-            });
-        });
+    const toggleCart = async (productId, isCart) => {
+        try {
+            if (isCart) {
+                await removeCart(productId);
+            } else {
+                await addCart(productId);
+            }
+
+            // Sepet durumu güncellenmiş ürünleri setProducts aracılığıyla güncelle
+            await fetchProducts();
+        } catch (error) {
+            console.error("Sepet durumu güncellenirken bir hata oluştu: ", error);
+        }
     };
+
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            // Çıkış başarılı olduysa, yönlendirme veya başka bir işlem ekleyebilirsiniz
+        } catch (error) {
+            console.error("Çıkış yaparken bir hata oluştu: ", error.message);
+        }
+    };
+
+    useEffect(() => {
+        const unsubscribe = navigation.addListener("focus", () => {
+            // Favori ürünler sayfasından dönüldüğünde ürünleri tekrar çek
+            fetchProducts();
+        });
+        // Komponent ayrıldığında event listener'ı temizle
+        return unsubscribe;
+    }, [navigation, fetchProducts]);
 
     return (
         <View style={styles.container}>
             <Navbar navigation={navigation} />
             <TouchableOpacity onPress={() => navigation.navigate("FavoriteProducts")}>
                 <Text style={styles.text}>Favori Ürünleri Listele</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+                <Text style={styles.text}>Sepet Ürünleri Listele</Text>
             </TouchableOpacity>
             <Text>Ürünler</Text>
             <View style={styles.products}>
@@ -91,17 +169,23 @@ export default function HomeScreen() {
                         <Text>
                             {product.product_name} - {product.product_price}
                         </Text>
-                        <TouchableOpacity onPress={() => toggleFavorite(product.product_id, !product.is_favorite)}>
+                        <TouchableOpacity onPress={() => toggleFavorite(product.product_id, product.is_favorite)}>
                             <HeartIcon size={24} color={product.is_favorite ? "red" : "gray"} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => toggleCart(product.product_id, product.is_cart)}>
+                            <ShoppingCartIcon size={24} color={product.is_cart ? "green" : "gray"} />
                         </TouchableOpacity>
                     </View>
                 ))}
             </View>
+
+            <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+                <Text style={styles.buttonText}>Logout</Text>
+            </TouchableOpacity>
+            <Footer navigation={navigation} />
         </View>
     );
-}
-
-// ... Stil tanımlamaları ...
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -120,5 +204,20 @@ const styles = StyleSheet.create({
     },
     productContainer: {
         marginBottom: 10,
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    logoutButton: {
+        padding: 10,
+        backgroundColor: "red",
+        borderRadius: 8,
+        marginTop: 10,
+    },
+    buttonText: {
+        color: "white",
+        fontSize: 16,
+        fontWeight: "bold",
     },
 });
+
+export default HomeScreen;

@@ -1,24 +1,62 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, Button } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, TextInput } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import Navbar from "./Navbar";
-import Footer from "./Footer";
+import React, { useEffect, useState } from "react";
+import { auth } from "../config/firebase";
+import { getAuth, updatePassword } from "firebase/auth";
 
 export default function UserManagerScreen() {
     const navigation = useNavigation();
+    const [currentUser, setCurrentUser] = useState(null);
+    const [newPassword, setNewPassword] = useState("");
+    const [passwordChanged, setPasswordChanged] = useState(false);
+
+    const handleChangePassword = () => {
+        // Kullanıcının girdiği yeni şifreyi kullanarak güncelleme yap
+        const user = auth.currentUser;
+        updatePassword(user, newPassword)
+            .then(() => {
+                console.log("Şifre başarıyla güncellendi");
+                setPasswordChanged(true);
+                setNewPassword(""); // Şifre değiştirildikten sonra giriş alanını sıfırla
+            })
+            .catch((error) => {
+                console.error("Şifre Güncelleme Hatası:", error.message);
+            });
+    };
+
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            if (user) {
+                setCurrentUser(user.toJSON());
+            } else {
+                // Kullanıcı oturum açmamışsa, giriş sayfasına yönlendir
+                navigation.navigate("Login");
+            }
+        });
+
+        return () => unsubscribe(); // componentWillUnmount gibi çalışır
+    }, [navigation]);
 
     return (
         <View style={styles.container}>
-            <Navbar navigation={navigation} />
-            <View style={styles.formContainer}>
-                <TouchableOpacity onPress={() => navigation.navigate("AddUser")}>
-                    <Text style={styles.Text}>Yeni Kullanıcı Ekle</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate("ListUsers")}>
-                    <Text style={styles.Text}>Kullanıcıları listele</Text>
-                </TouchableOpacity>
-            </View>
-            <Footer navigation={navigation} />
+            {currentUser ? (
+                <View style={styles.userInfo}>
+                    <Text>Email: {currentUser.email}</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Yeni Şifre"
+                        secureTextEntry
+                        value={newPassword}
+                        onChangeText={(text) => setNewPassword(text)}
+                    />
+                    <TouchableOpacity onPress={handleChangePassword}>
+                        <Text style={styles.changePasswordText}>Şifreyi Değiştir</Text>
+                    </TouchableOpacity>
+                    {passwordChanged && <Text style={styles.successMessage}>Şifreniz başarıyla değiştirildi!</Text>}
+                </View>
+            ) : (
+                <Text>Oturum açmış bir kullanıcı yok.</Text>
+            )}
         </View>
     );
 }
@@ -26,31 +64,24 @@ export default function UserManagerScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "white",
-    },
-
-    formContainer: {
-        flex: 1,
-        paddingHorizontal: 8,
-    },
-    form: {
-        flex: 1,
         justifyContent: "center",
+        alignItems: "center",
     },
-    label: {
-        color: "#555",
-        marginLeft: 20,
-        paddingTop: 10,
-        paddingBottom: 10,
-    },
-    input: {
+    userInfo: {
         padding: 20,
         backgroundColor: "#EEE",
-        color: "#555",
-        borderRadius: 20,
-        marginBottom: 10,
+        borderRadius: 10,
     },
-    Text: {
-        color: "#BBB",
+    input: {
+        height: 40,
+        borderColor: "gray",
+        borderWidth: 1,
+        marginBottom: 10,
+        padding: 10,
+        borderRadius: 5,
+    },
+    changePasswordText: {
+        color: "blue",
+        marginTop: 10,
     },
 });
