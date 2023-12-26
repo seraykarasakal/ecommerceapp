@@ -25,6 +25,15 @@ export default function App() {
                 []
             );
         });
+
+        // Favori ürünler tablosu oluşturuluyor
+        db.transaction(function (txn) {
+            txn.executeSql("CREATE TABLE IF NOT EXISTS favorites(id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER)", []);
+        });
+
+        db.transaction(function (txn) {
+            txn.executeSql("CREATE TABLE IF NOT EXISTS table_cart(id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER)", []);
+        });
     }, []);
 
     return <AppNavigation />;
