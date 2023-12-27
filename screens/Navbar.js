@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     },
     IconBehave: {
         padding: 14,
-        backgroundColor: 'white',
+        backgroundColor: '#eee',
     },
     activeButton: {
         color: 'black',

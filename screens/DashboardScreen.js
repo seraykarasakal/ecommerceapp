@@ -1,30 +1,17 @@
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { signOut } from "firebase/auth";
-import { React, createContext, useContext, useEffect, useState } from "react";
-import { Alert, FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { React, createContext, useEffect, useState } from "react";
+import { Alert, Dimensions, FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ArrowLeftIcon, ChevronDoubleRightIcon, TrashIcon } from "react-native-heroicons/solid";
 import { DatabaseConnection } from "../config/database-connection";
 import { auth } from "../config/firebase";
+import Header from "./Header";
 import Navbar from "./Navbar";
 
 const db = DatabaseConnection.getConnection();
 const RefreshContext = createContext();
-const RefreshProvider = ({ children }) => {
-    const [refresh, setRefresh] = useState(false);
 
-    const handleRefresh = () => {
-        setRefresh(!refresh);
-    };
 
-    return (
-        <RefreshContext.Provider value={{ refresh, handleRefresh }}>
-            {children}
-        </RefreshContext.Provider>
-    );
-};
-const useRefresh = () => {
-    return useContext(RefreshContext);
-};
 
 const DashboardScreen = () => {
     const navigation = useNavigation();
@@ -32,7 +19,6 @@ const DashboardScreen = () => {
     const handleLogout = async () => {
         try {
             await signOut(auth);
-            // Çıkış başarılı olduysa, yönlendirme veya başka bir işlem ekleyebilirsiniz
         } catch (error) {
             console.error("Çıkış yaparken bir hata oluştu: ", error.message);
         }
@@ -40,13 +26,8 @@ const DashboardScreen = () => {
     let [flatListItems, setFlatListItems] = useState([]);
     const handleRefresh = () => {
         setRefresh(!refresh);
-        // FlatList'in otomatik olarak yeniden yüklenmesi için flatListItems state'ini güncelle
-        setFlatListItems([...flatListItems]); // Bu, flatListItems'in referansını değiştirecek ve FlatList'i tetikleyecektir
+        setFlatListItems([...flatListItems]);
     };
-    const handlerPressForDelete = (id) => {
-        deleteProduct(id);
-        handleRefresh();
-    }
     const isFocused = useIsFocused();
     useEffect(() => {
         if (isFocused) {
@@ -96,9 +77,9 @@ const DashboardScreen = () => {
     let listProductsView = (item) => {
         return (
 
-            <View
+            <ScrollView
                 key={item.product_id}
-                style={{ backgroundColor: '#EEE', marginTop: 20, padding: 30, borderRadius: 10 }}>
+                style={styles.card}>
                 <TouchableOpacity onPress={() => navigation.navigate('EditProduct', { id: item.product_id })}>
                     <ChevronDoubleRightIcon size="20" color="black" />
                 </TouchableOpacity>
@@ -118,52 +99,58 @@ const DashboardScreen = () => {
                 <Text style={styles.textbottom}>{item.product_price}</Text>
 
 
-            </View>
+            </ScrollView>
 
         );
     };
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#877dfa', alignItems: 'center', justifyContent: 'center' }}>
-            <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-                <Text style={styles.buttonText}>Logout</Text>
-            </TouchableOpacity>
-            <View style={{ padding: 30 }}>
-                <TouchableOpacity onPress={() => navigation.goBack()} className="bg-yellow-400 p-2 rounded-tr-2xl rounded-bl-2xl ml-4">
-                    <ArrowLeftIcon size="20" color="black" />
-                </TouchableOpacity>
-            </View>
-            <View style={{ flex: 1, backgroundColor: 'white', padding: 100 }}>
-                <View style={{ flex: 1 }}>
+        <View style={styles.container}>
+            <Header label='Dashboard Screen' />
+            <ScrollView >
+
+                <View style={styles.content}>
+                    <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+                        <Text style={styles.buttonText}>Logout</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <ArrowLeftIcon size="20" color="black" />
+                    </TouchableOpacity>
+
+
+
 
                     <FlatList
-                        style={{ marginTop: 30 }}
+                        style={{ marginTop: 30, flex: 1 }}
                         contentContainerStyle={{ paddingHorizontal: 20 }}
                         data={flatListItems}
                         keyExtractor={(item, index) => index.toString()}
                         renderItem={({ item }) => listProductsView(item)}
                     />
+
+
                 </View>
 
-            </View>
-
+            </ScrollView>
             <Navbar navigation={navigation} />
-        </SafeAreaView>
+        </View>
     );
 };
-
+const deviceWidth = Math.round(Dimensions.get('window').width);
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#877dfa',
-        justifyContent: "center",
+        justifyContent: "flex-start",
         alignItems: "center",
+        paddingBottom:70,
     },
     content: {
         flex: 1,
-        padding: 30,
+        backgroundColor: '#877dfa',
+        justifyContent: "flex-start",
+        padding: 10,
         margin: 10,
-        justifyContent: "center",
-        alignItems: "center",
     },
     text: {
         fontSize: 18,
@@ -180,6 +167,34 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "bold",
     },
+    textheader: {
+        color: '#111',
+        fontSize: 12,
+        fontWeight: '700',
+
+    },
+    textbottom: {
+        color: '#111',
+        fontSize: 18,
+    },
+    card: {
+        flex: 1,
+        width: deviceWidth - 70,
+        backgroundColor: '#a29bfe',
+        height: 300,
+        borderRadius: 20,
+
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 5,
+            height: 5,
+        },
+        shadowOpacity: 0.75,
+        shadowRadius: 5,
+        elevation: 9,
+        marginTop: 20,
+        padding: 30,
+    }
 });
 
 export default DashboardScreen;
