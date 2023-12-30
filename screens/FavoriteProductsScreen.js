@@ -1,38 +1,41 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { DatabaseConnection } from "../config/database-connection";
-import { HeartIcon } from "react-native-heroicons/solid";
-import HomeNavbar from "./HomeNavbar";
-import Header from "./Header";
 import { useNavigation } from "@react-navigation/native";
+import { getAuth } from "firebase/auth";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { HeartIcon } from "react-native-heroicons/solid";
+import { DatabaseConnection } from "../config/database-connection";
+import Header from "./Header";
+import HomeNavbar from "./HomeNavbar";
+
 
 const db = DatabaseConnection.getConnection();
 
 const FavoriteProductsScreen = () => {
     const navigation = useNavigation();
 
+
+
+    const auth = getAuth();
+    const user = auth.currentUser;
+    const uid = user ? user.uid : null;
+    const [flatListItems, setFlatListItems] = useState([]);
+
     const [products, setProducts] = useState([]);
 
     const getFavoriteProductsFromDatabase = () => {
-        return new Promise((resolve, reject) => {
-            db.transaction((tx) => {
-                tx.executeSql(
-                    "SELECT p.*, f.product_id IS NOT NULL AS is_favorite FROM table_products p LEFT JOIN favorites f ON p.product_id = f.product_id WHERE f.product_id IS NOT NULL",
-                    [],
-                    (_, { rows }) => {
-                        const products = [];
-                        for (let i = 0; i < rows.length; i++) {
-                            products.push(rows.item(i));
-                        }
-                        resolve(products);
-                    },
-                    (_, error) => {
-                        console.error("Favori ürünleri çekerken bir hata oluştu:", error);
-                        reject(error);
+
+        db.transaction((tx) => {
+            tx.executeSql(
+                "SELECT * FROM favorites INNER JOIN table_products ON favorites.product_id = table_products.product_id WHERE favorites.user_id = ?",
+                [uid], (tx, results) => {
+                    var temp = [];
+                    for (let i = 0; i < results.rows.length; ++i) {
+                        temp.push(results.rows.item(i));
                     }
-                );
-            });
+                    setFlatListItems(temp);
+                });
         });
+
     };
 
     const handleToggleFavorite = async (productId, isFavorite) => {
@@ -104,7 +107,6 @@ const FavoriteProductsScreen = () => {
     const fetchFavoriteProducts = async () => {
         try {
             const favoriteProducts = await getFavoriteProductsFromDatabase();
-            setProducts(favoriteProducts);
         } catch (error) {
             console.error("Favori ürünleri çekerken bir hata oluştu: ", error);
         }
@@ -127,6 +129,7 @@ const FavoriteProductsScreen = () => {
     useEffect(() => {
         fetchFavoriteProducts();
     }, []);
+
     return (
         <View style={styles.container}>
             <Header label="Favorilerim" />
@@ -138,7 +141,7 @@ const FavoriteProductsScreen = () => {
                             <Text style={styles.productName}>{product.product_name}</Text>
                             <Text style={styles.productPrice}>{product.product_price} TL</Text>
                         </View>
-                        <TouchableOpacity onPress={() => toggleFavorite(product.product_id, product.is_favorite)}>
+                        <TouchableOpacity onPress={() => toggleFavorite(product.product_id)}>
                             <HeartIcon size={24} color={product.is_favorite ? "red" : "gray"} />
                         </TouchableOpacity>
                     </View>
@@ -146,7 +149,7 @@ const FavoriteProductsScreen = () => {
             </View>
             <HomeNavbar navigation={navigation} />
         </View>
-    );
+    )
 };
 
 const styles = StyleSheet.create({

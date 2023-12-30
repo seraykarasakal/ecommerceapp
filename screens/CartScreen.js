@@ -1,45 +1,50 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Button } from "react-native";
-import { DatabaseConnection } from "../config/database-connection";
-import { HeartIcon, ShoppingCartIcon } from "react-native-heroicons/solid";
 import { useNavigation } from "@react-navigation/native";
-import HomeNavbar from "./HomeNavbar";
+import { getAuth } from "firebase/auth";
+import React, { useCallback, useEffect, useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { HeartIcon, ShoppingCartIcon } from "react-native-heroicons/solid";
+import { DatabaseConnection } from "../config/database-connection";
 import Header from "./Header";
+import HomeNavbar from "./HomeNavbar";
 
 const db = DatabaseConnection.getConnection();
 
 const CartScreen = () => {
     const navigation = useNavigation();
+    const auth = getAuth();
+    const user = auth.currentUser;
+    const uid = user ? user.uid : null;
     const [cartItems, setCartItems] = useState([]);
+    const [products, setProducts] = useState([]);
+    const getCartFromDatabase = () => {
 
-    const getCartFromDatabase = useCallback(() => {
-        return new Promise((resolve, reject) => {
-            db.transaction((tx) => {
+        db.transaction((tx) => {
+            return new Promise((resolve, reject) => {
                 tx.executeSql(
-                    "SELECT p.*, f.product_id IS NOT NULL AS is_favorite, c.product_id IS NOT NULL AS is_cart FROM table_products p LEFT JOIN favorites f ON p.product_id = f.product_id LEFT JOIN table_cart c ON p.product_id = c.product_id WHERE c.product_id IS NOT NULL",
-                    [],
-                    (_, { rows }) => {
-                        const products = [];
-                        for (let i = 0; i < rows.length; i++) {
-                            products.push(rows.item(i));
+                    "SELECT * FROM table_cart INNER JOIN table_products ON table_cart.product_id = table_products.product_id WHERE table_cart.user_id = ?",
+                    [uid],
+                    (tx, results) => {
+
+                        var temp = [];
+                        for (let i = 0; i < results.rows.length; ++i) {
+                            temp.push(results.rows.item(i));
                         }
-                        resolve(products);
-                    },
-                    (_, error) => {
-                        console.error("Sepetteki ürünleri çekerken bir hata oluştu:", error);
-                        reject(error);
+                        setCartItems(temp);
+
                     }
                 );
             });
-        });
-    }, []);
 
-    const toggleFavoriteInDatabase = useCallback((productId, isFavorite) => {
+        });
+
+    };
+
+    const toggleFavoriteInDatabase = useCallback((productId) => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
                 tx.executeSql(
-                    "UPDATE table_products SET is_favorite = ? WHERE product_id = ?",
-                    [isFavorite ? 0 : 1, productId],
+                    "DELETE FROM favorites WHERE product_id = ? user_id = ?",
+                    [productId, uid],
                     (_, { rowsAffected }) => {
                         console.log("Rows affected:", rowsAffected);
                         if (rowsAffected > 0) {
@@ -69,8 +74,8 @@ const CartScreen = () => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
                 tx.executeSql(
-                    "DELETE FROM table_cart WHERE product_id = ?",
-                    [productId],
+                    "DELETE FROM table_cart WHERE product_id = ? AND user_id=?",
+                    [productId, uid],
                     (_, results) => {
                         console.log("Ürün sepetten çıkarıldı:", results);
                         resolve();
@@ -86,20 +91,17 @@ const CartScreen = () => {
 
     const fetchCart = useCallback(async () => {
         try {
-            const cartItems = await getCartFromDatabase();
-            setCartItems(cartItems);
+            const cartItems = getCartFromDatabase();
+
         } catch (error) {
             console.error("Sepetteki ürünleri çekerken bir hata oluştu: ", error);
         }
     }, [getCartFromDatabase]);
 
-    const toggleCart = async (productId, isCart) => {
+    const toggleCart = async (productId) => {
         try {
-            if (isCart) {
-                await removeFromCart(productId);
-            } else {
-                await addToCart(productId);
-            }
+            await removeFromCart(productId);
+            
 
             // Sepet durumu güncellenmiş ürünleri setCartItems aracılığıyla güncelle
             await fetchCart();
@@ -134,7 +136,7 @@ const CartScreen = () => {
                             <Text style={styles.productPrice}>{item.product_price} TL</Text>
                         </View>
                         <View style={styles.iconsContainer}>
-                            <TouchableOpacity onPress={() => toggleFavoriteInDatabase(item.product_id, item.is_favorite)}>
+                            <TouchableOpacity onPress={() => toggleFavoriteInDatabase(item.product_id)}>
                                 <HeartIcon size={24} color={item.is_favorite ? "red" : "gray"} />
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => toggleCart(item.product_id, item.is_cart)}>
@@ -149,6 +151,7 @@ const CartScreen = () => {
                 <TouchableOpacity style={styles.paymentButton} onPress={() => navigation.navigate("Payment")}>
                     <Text style={styles.paymentButtonText}>Ödemeye Geç</Text>
                 </TouchableOpacity>
+
             </View>
             <HomeNavbar navigation={navigation} />
         </View>

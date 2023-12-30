@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ArrowLeftIcon, ChevronDoubleRightIcon } from "react-native-heroicons/solid";
 import { DatabaseConnection } from "../config/database-connection";
+import Navbar from "./Navbar";
 
 const db = DatabaseConnection.getConnection();
 
@@ -68,6 +69,7 @@ const ListUsers = () => {
                     />
                 </View>
             </View>
+            <Navbar navigation = {navigation}/>
         </SafeAreaView>
     );
 };

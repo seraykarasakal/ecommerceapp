@@ -1,18 +1,23 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, Alert } from "react-native";
+
 import { useNavigation } from "@react-navigation/native";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { default as React, default as React, useState } from "react";
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { DatabaseConnection } from "../config/database-connection";
 import { auth } from "../config/firebase";
 
+const db = DatabaseConnection.getConnection();
 export default function SignUpScreen() {
     const navigation = useNavigation();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
+
     const handleSubmit = async () => {
         try {
             if (email && password) {
                 await createUserWithEmailAndPassword(auth, email, password);
+
                 // Kullanıcı başarıyla kayıt olduysa:
                 console.log("Kullanıcı başarıyla kayıt oldu");
                 Alert.alert("Başarılı", "Kullanıcı başarıyla kayıt oldu.");
