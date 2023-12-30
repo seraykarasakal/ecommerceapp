@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, Image, TextInput, StyleSheet, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebase";
-import Navbar from "./Navbar";
 
 export default function SignUpScreen() {
     const navigation = useNavigation();
@@ -11,46 +10,48 @@ export default function SignUpScreen() {
     const [password, setPassword] = useState("");
 
     const handleSubmit = async () => {
-        if (email && password) {
-            try {
+        try {
+            if (email && password) {
                 await createUserWithEmailAndPassword(auth, email, password);
-            } catch (err) {
-                console.log("got error: ", err.message);
+                // Kullanıcı başarıyla kayıt olduysa:
+                console.log("Kullanıcı başarıyla kayıt oldu");
+                Alert.alert("Başarılı", "Kullanıcı başarıyla kayıt oldu.");
+            }
+        } catch (err) {
+            // Firebase tarafından dönen hata kodunu kontrol edin
+            if (err.code === "auth/email-already-in-use") {
+                console.log("Kullanıcı zaten kayıtlı");
+                Alert.alert("Hata", "Kullanıcı zaten kayıtlı.");
+                setEmail("");
+                setPassword("");
+            } else if (err.code === "auth/weak-password") {
+                console.log("Zayıf şifre");
+                // Zayıf şifre hatası durumunda bir uyarı mesajı gösterin
+                Alert.alert("Hata", "Şifre zayıf. Lütfen daha güçlü bir şifre seçin.");
+                setPassword("");
+            } else {
+                console.log("Diğer hata: ", err.message);
+                // Diğer hatalar için genel bir hata mesajı gösterin
+                Alert.alert("Hata", "Bir hata oluştu. Lütfen tekrar deneyin.");
+                setEmail("");
+                setPassword("");
             }
         }
     };
 
     return (
         <View style={[styles.container]}>
-            <Navbar navigation={navigation} />
             <View style={styles.formContainer}>
                 <View style={styles.form}>
                     <Text style={styles.label}>Email Address</Text>
-                    <TextInput style={styles.input} value={email} onChangeText={(value) => setEmail(value)} placeholder="Enter Email" />
+                    <TextInput style={styles.input} value={email} onChangeText={(value) => setEmail(value)} placeholder="Email" />
                     <Text style={styles.label}>Password</Text>
-                    <TextInput
-                        style={styles.input}
-                        secureTextEntry
-                        value={password}
-                        onChangeText={(value) => setPassword(value)}
-                        placeholder="Enter Password"
-                    />
+                    <TextInput style={styles.input} secureTextEntry value={password} onChangeText={(value) => setPassword(value)} placeholder="Password" />
                     <TouchableOpacity style={styles.signUpButton} onPress={handleSubmit}>
                         <Text style={styles.signUpButtonText}>Sign Up</Text>
                     </TouchableOpacity>
                 </View>
                 <Text style={styles.orText}>Or</Text>
-                <View style={styles.socialButtons}>
-                    <TouchableOpacity style={styles.socialButton}>
-                        <Image source={require("../assets/icons/google.png")} style={styles.socialIcon} />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.socialButton}>
-                        <Image source={require("../assets/icons/apple.png")} style={styles.socialIcon} />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.socialButton}>
-                        <Image source={require("../assets/icons/facebook.png")} style={styles.socialIcon} />
-                    </TouchableOpacity>
-                </View>
                 <View style={styles.loginLink}>
                     <Text style={styles.loginText}>Already have an account?</Text>
                     <TouchableOpacity onPress={() => navigation.navigate("Login")}>
@@ -65,13 +66,9 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 15,
         backgroundColor: "#877dfa",
     },
-
     formContainer: {
-        borderTopLeftRadius: 50,
-        borderTopRightRadius: 50,
         flex: 1,
         backgroundColor: "white",
         paddingHorizontal: 8,
@@ -80,11 +77,12 @@ const styles = StyleSheet.create({
     form: {
         flex: 1,
         justifyContent: "center",
-        paddingTop: 20,
     },
     label: {
         color: "#555",
         marginLeft: 20,
+        paddingTop: 5,
+        paddingBottom: 5,
     },
     input: {
         padding: 20,
@@ -98,6 +96,7 @@ const styles = StyleSheet.create({
     signUpButton: {
         backgroundColor: "#FFD700",
         padding: 15,
+        marginTop: 15,
         borderRadius: 20,
     },
     signUpButtonText: {
@@ -111,23 +110,9 @@ const styles = StyleSheet.create({
         color: "#555",
         fontWeight: "bold",
         textAlign: "center",
-        marginTop: 20,
         marginBottom: 10,
     },
-    socialButtons: {
-        flexDirection: "row",
-        justifyContent: "center",
-        spaceBetween: 12,
-    },
-    socialButton: {
-        padding: 10,
-        backgroundColor: "#EEE",
-        borderRadius: 20,
-    },
-    socialIcon: {
-        width: 40,
-        height: 40,
-    },
+
     loginLink: {
         flexDirection: "row",
         justifyContent: "center",
