@@ -1,7 +1,7 @@
 
 import { useNavigation } from "@react-navigation/native";
 import { getAuth, signOut } from "firebase/auth";
-import { default as React, default as React, useCallback, useEffect, useState } from "react";
+import { React, useCallback, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { HeartIcon, ShoppingCartIcon } from "react-native-heroicons/solid";
 import { DatabaseConnection } from "../config/database-connection";

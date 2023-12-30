@@ -1,7 +1,7 @@
 
 import { useNavigation } from "@react-navigation/native";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { default as React, default as React, useState } from "react";
+import { React, useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { DatabaseConnection } from "../config/database-connection";
 import { auth } from "../config/firebase";
