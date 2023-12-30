@@ -7,21 +7,10 @@ import { DatabaseConnection } from "../config/database-connection";
 import { auth } from "../config/firebase";
 import Header from "./Header";
 import Navbar from "./Navbar";
+
 const db = DatabaseConnection.getConnection();
 const RefreshContext = createContext();
 
-const RefreshProvider = ({ children }) => {
-    const [refresh, setRefresh] = useState(false);
-
-    const handleRefresh = () => {
-        setRefresh(!refresh);
-    };
-
-    return <RefreshContext.Provider value={{ refresh, handleRefresh }}>{children}</RefreshContext.Provider>;
-};
-const useRefresh = () => {
-    return useContext(RefreshContext);
-};
 const DashboardScreen = () => {
     const navigation = useNavigation();
     const [refresh, setRefresh] = useState(false);
@@ -37,12 +26,6 @@ const DashboardScreen = () => {
         setRefresh(!refresh);
         setFlatListItems([...flatListItems]);
     };
-
-    const handlerPressForDelete = (id) => {
-        deleteProduct(id);
-        handleRefresh();
-    };
-
     const isFocused = useIsFocused();
     useEffect(() => {
         if (isFocused) {
@@ -83,48 +66,27 @@ const DashboardScreen = () => {
     };
     let listProductsView = (item) => {
         return (
-            <View key={item.product_id} style={styles.Cartcontainer}>
-                <View style={styles.Cartcontainer2}>
-                    <View style={styles.product}>
-                        <Text style={styles.textheader}>Id</Text>
-                        <Text style={styles.textbottom}>{item.product_id}</Text>
-                        <ScrollView key={item.product_id} style={styles.card}>
-                            <TouchableOpacity onPress={() => navigation.navigate("EditProduct", { id: item.product_id })}>
-                                <ChevronDoubleRightIcon size="20" color="black" />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => deleteProduct(item.product_id)}>
-                                <TrashIcon size="20" color="black" />
-                            </TouchableOpacity>
-                            <Text style={styles.textheader}>Id</Text>
-                            <Text style={styles.textbottom}>{item.product_id}</Text>
+            <ScrollView key={item.product_id} style={styles.card}>
+                <TouchableOpacity onPress={() => navigation.navigate("EditProduct", { id: item.product_id })}>
+                    <ChevronDoubleRightIcon size="20" color="black" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => deleteProduct(item.product_id)}>
+                    <TrashIcon size="20" color="black" />
+                </TouchableOpacity>
+                <Text style={styles.textheader}>Id</Text>
+                <Text style={styles.textbottom}>{item.product_id}</Text>
 
-                            <Text style={styles.textheader}>Product Name</Text>
-                            <Text style={styles.textbottom}>{item.product_name}</Text>
+                <Text style={styles.textheader}>Product Name</Text>
+                <Text style={styles.textbottom}>{item.product_name}</Text>
 
-                            <Text style={styles.textheader}>Product Description</Text>
-                            <Text style={styles.textbottom}>{item.product_description}</Text>
+                <Text style={styles.textheader}>Product Description</Text>
+                <Text style={styles.textbottom}>{item.product_description}</Text>
 
-                            <Text style={styles.textheader}>Product Price</Text>
-                            <Text style={styles.textbottom}>{item.product_price}</Text>
-
-                            <Text style={styles.textheader}>Product Description</Text>
-                            <Text style={styles.textbottom}>{item.product_description}</Text>
-                        </ScrollView>
-
-                        <View style={styles.iconsContainer}>
-                            <TouchableOpacity onPress={() => navigation.navigate("EditProduct", { id: item.product_id })}>
-                                <ChevronDoubleRightIcon size="20" color="black" />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => deleteProduct(item.product_id)}>
-                                <TrashIcon size="20" color="black" />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </View>
+                <Text style={styles.textheader}>Product Price</Text>
+                <Text style={styles.textbottom}>{item.product_price}</Text>
+            </ScrollView>
         );
     };
-
     return (
         <View style={styles.container}>
             <Header label="Dashboard Screen" />
@@ -160,33 +122,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         paddingBottom: 70,
     },
-    Cartcontainer: {
-        backgroundColor: "red",
-        paddingBottom: 100,
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 16,
-        marginLeft: 10,
-        marginRight: 10,
-        borderWidth: 1,
-        borderColor: "#E5E3DD",
-        padding: 16,
-        borderRadius: 8,
-        backgroundColor: "#fff",
-    },
-    Cartcontainer2: {
-        flexDirection: "row",
-    },
-    iconsContainer: {
-        flexDirection: "row",
-        gap: 7,
-        alignSelf: "flex-end",
-        justifyContent: "space-between",
-        alignItems: "center",
-        alignSelf: "flex-end",
-    },
-    products: {
+    content: {
         flex: 1,
         backgroundColor: "#877dfa",
         justifyContent: "flex-start",
@@ -197,17 +133,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         marginBottom: 20,
     },
-    textheader: {
-        fontSize: 18,
-        fontWeight: "bold",
-        marginBottom: 8,
-        color: "#333",
-    },
-    textbottom: {
-        fontSize: 16,
-        color: "#666",
-    },
-    product: {},
     logoutButton: {
         padding: 10,
         backgroundColor: "#F0E68C",
