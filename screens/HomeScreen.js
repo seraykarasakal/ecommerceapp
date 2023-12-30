@@ -2,11 +2,12 @@ import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { DatabaseConnection } from "../config/database-connection";
 import { HeartIcon, ShoppingCartIcon } from "react-native-heroicons/solid";
-import Navbar from "./Navbar";
 import Footer from "./Footer";
 import { useNavigation } from "@react-navigation/native";
 import { signOut } from "firebase/auth";
 import { auth } from "../config/firebase";
+import HomeNavbar from "./HomeNavbar";
+import Header from "./Header";
 
 const db = DatabaseConnection.getConnection();
 
@@ -155,34 +156,27 @@ const HomeScreen = () => {
 
     return (
         <View style={styles.container}>
-            <Navbar navigation={navigation} />
-            <TouchableOpacity onPress={() => navigation.navigate("FavoriteProducts")}>
-                <Text style={styles.text}>Favori Ürünleri Listele</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-                <Text style={styles.text}>Sepet Ürünleri Listele</Text>
-            </TouchableOpacity>
-            <Text>Ürünler</Text>
+            <Header label="Anasayfa" />
+            <Text style={styles.headerText}>Ürünler</Text>
             <View style={styles.products}>
                 {products.map((product) => (
                     <View key={product.product_id} style={styles.productContainer}>
-                        <Text>
-                            {product.product_name} - {product.product_price}
-                        </Text>
-                        <TouchableOpacity onPress={() => toggleFavorite(product.product_id, product.is_favorite)}>
-                            <HeartIcon size={24} color={product.is_favorite ? "red" : "gray"} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => toggleCart(product.product_id, product.is_cart)}>
-                            <ShoppingCartIcon size={24} color={product.is_cart ? "green" : "gray"} />
-                        </TouchableOpacity>
+                        <View style={styles.productInfo}>
+                            <Text style={styles.productName}>{product.product_name}</Text>
+                            <Text style={styles.productPrice}>{product.product_price} TL</Text>
+                        </View>
+                        <View style={styles.iconsContainer}>
+                            <TouchableOpacity onPress={() => toggleFavorite(product.product_id, product.is_favorite)}>
+                                <HeartIcon size={24} color={product.is_favorite ? "red" : "grey"} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => toggleCart(product.product_id, product.is_cart)}>
+                                <ShoppingCartIcon size={24} color={product.is_cart ? "green" : "grey"} />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 ))}
             </View>
-
-            <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-                <Text style={styles.buttonText}>Logout</Text>
-            </TouchableOpacity>
-            <Footer navigation={navigation} />
+            <HomeNavbar navigation={navigation} />
         </View>
     );
 };
@@ -190,28 +184,56 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 50,
+        backgroundColor: "white",
     },
-    text: {
-        fontSize: 18,
+    headerText: {
+        fontSize: 24,
         fontWeight: "bold",
-        marginBottom: 10,
+        marginBottom: 16,
+        marginTop: 16,
+        color: "#333",
+        marginLeft: 10,
     },
     products: {
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
     },
     productContainer: {
-        marginBottom: 10,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 16,
+        marginLeft: 10,
+        marginRight: 10,
+        borderWidth: 1,
+        borderColor: "#E5E3DD",
+        padding: 16,
+        borderRadius: 8,
+        backgroundColor: "#fff",
+    },
+    productInfo: {
+        flex: 1,
+    },
+    productName: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginBottom: 8,
+        color: "#333",
+    },
+    productPrice: {
+        fontSize: 16,
+        color: "#666",
+    },
+    iconsContainer: {
         flexDirection: "row",
         alignItems: "center",
+        gap: 7,
     },
     logoutButton: {
-        padding: 10,
         backgroundColor: "red",
+        padding: 16,
         borderRadius: 8,
-        marginTop: 10,
+        marginTop: 16,
+        alignItems: "center",
     },
     buttonText: {
         color: "white",
@@ -219,5 +241,4 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },
 });
-
 export default HomeScreen;

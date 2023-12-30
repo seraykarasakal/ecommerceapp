@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, StyleSheet, Button } from "react-native";
 import { DatabaseConnection } from "../config/database-connection";
 import { HeartIcon, ShoppingCartIcon } from "react-native-heroicons/solid";
 import { useNavigation } from "@react-navigation/native";
+import HomeNavbar from "./HomeNavbar";
+import Header from "./Header";
 
 const db = DatabaseConnection.getConnection();
 
@@ -122,27 +124,33 @@ const CartScreen = () => {
 
     return (
         <View style={styles.container}>
-            <Text>Sepetteki Ürünler</Text>
+            <Header label="Sepetim" />
+            <Text style={styles.headerText}>Sepetteki Ürünler</Text>
             <View style={styles.products}>
                 {cartItems.map((item) => (
                     <View key={item.product_id} style={styles.productContainer}>
-                        <Text>
-                            {item.product_name} - {item.product_price}
-                        </Text>
-                        <TouchableOpacity onPress={() => toggleFavoriteInDatabase(item.product_id, item.is_favorite)}>
-                            <HeartIcon size={24} color={item.is_favorite ? "red" : "gray"} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => toggleCart(item.product_id, item.is_cart)}>
-                            <ShoppingCartIcon size={24} color={item.is_cart ? "green" : "gray"} />
-                        </TouchableOpacity>
+                        <View style={styles.productInfo}>
+                            <Text style={styles.productName}>{item.product_name}</Text>
+                            <Text style={styles.productPrice}>{item.product_price} TL</Text>
+                        </View>
+                        <View style={styles.iconsContainer}>
+                            <TouchableOpacity onPress={() => toggleFavoriteInDatabase(item.product_id, item.is_favorite)}>
+                                <HeartIcon size={24} color={item.is_favorite ? "red" : "gray"} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => toggleCart(item.product_id, item.is_cart)}>
+                                <ShoppingCartIcon size={24} color={item.is_cart ? "green" : "gray"} />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 ))}
+                <View style={styles.totalContainer}>
+                    <Text style={styles.totalText}>Toplam: {calculateTotal()} TL</Text>
+                </View>
+                <TouchableOpacity style={styles.paymentButton} onPress={() => navigation.navigate("Payment")}>
+                    <Text style={styles.paymentButtonText}>Ödemeye Geç</Text>
+                </TouchableOpacity>
             </View>
-            <Text>Total: {calculateTotal()}</Text>
-
-            <TouchableOpacity title="Make Payment" onPress={() => navigation.navigate("Payment")}>
-                <Text style={styles.text}>Ödemeye geç</Text>
-            </TouchableOpacity>
+            <HomeNavbar navigation={navigation} />
         </View>
     );
 };
@@ -150,18 +158,74 @@ const CartScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 10,
+        backgroundColor: "white",
+    },
+    headerText: {
+        fontSize: 24,
+        fontWeight: "bold",
+        marginBottom: 16,
+        marginTop: 16,
+        color: "#333",
+        marginLeft: 10,
     },
     products: {
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
     },
     productContainer: {
-        marginBottom: 10,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 16,
+        marginLeft: 10,
+        marginRight: 10,
+        borderWidth: 1,
+        borderColor: "#E5E3DD",
+        padding: 16,
+        borderRadius: 8,
+        backgroundColor: "#fff",
+    },
+    productInfo: {
+        flex: 1,
+    },
+    productName: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginBottom: 8,
+        color: "#333",
+    },
+    productPrice: {
+        fontSize: 16,
+        color: "#666",
+    },
+    iconsContainer: {
         flexDirection: "row",
         alignItems: "center",
+        gap: 7,
+    },
+    totalContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginVertical: 16,
+        paddingHorizontal: 16,
+    },
+    totalText: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#333",
+    },
+    paymentButton: {
+        backgroundColor: "#E5E3DD",
+        padding: 15,
+        marginLeft: 10,
+        width: "50%",
+        borderRadius: 20,
+    },
+    paymentButtonText: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#374151",
+        textAlign: "center",
     },
 });
-
 export default CartScreen;

@@ -2,10 +2,15 @@ import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { DatabaseConnection } from "../config/database-connection";
 import { HeartIcon } from "react-native-heroicons/solid";
+import HomeNavbar from "./HomeNavbar";
+import Header from "./Header";
+import { useNavigation } from "@react-navigation/native";
 
 const db = DatabaseConnection.getConnection();
 
 const FavoriteProductsScreen = () => {
+    const navigation = useNavigation();
+
     const [products, setProducts] = useState([]);
 
     const getFavoriteProductsFromDatabase = () => {
@@ -124,19 +129,22 @@ const FavoriteProductsScreen = () => {
     }, []);
     return (
         <View style={styles.container}>
-            <Text>Favori Ürünler</Text>
+            <Header label="Favorilerim" />
+            <Text style={styles.headerText}>Favori Ürünler</Text>
             <View style={styles.products}>
                 {products.map((product) => (
                     <View key={product.product_id} style={styles.productContainer}>
-                        <Text>
-                            {product.product_name} - {product.product_price}
-                        </Text>
+                        <View style={styles.productInfo}>
+                            <Text style={styles.productName}>{product.product_name}</Text>
+                            <Text style={styles.productPrice}>{product.product_price} TL</Text>
+                        </View>
                         <TouchableOpacity onPress={() => toggleFavorite(product.product_id, product.is_favorite)}>
                             <HeartIcon size={24} color={product.is_favorite ? "red" : "gray"} />
                         </TouchableOpacity>
                     </View>
                 ))}
             </View>
+            <HomeNavbar navigation={navigation} />
         </View>
     );
 };
@@ -144,15 +152,44 @@ const FavoriteProductsScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 10,
+        backgroundColor: "white",
+    },
+    headerText: {
+        fontSize: 24,
+        fontWeight: "bold",
+        marginBottom: 16,
+        marginTop: 16,
+        color: "#333",
+        marginLeft: 10,
     },
     products: {
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
     },
     productContainer: {
-        marginBottom: 10,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 16,
+        marginLeft: 10,
+        marginRight: 10,
+        borderWidth: 1,
+        borderColor: "#E5E3DD",
+        padding: 16,
+        borderRadius: 8,
+        backgroundColor: "#fff",
+    },
+    productInfo: {
+        flex: 1,
+    },
+    productName: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginBottom: 8,
+        color: "#333",
+    },
+    productPrice: {
+        fontSize: 16,
+        color: "#666",
     },
 });
 

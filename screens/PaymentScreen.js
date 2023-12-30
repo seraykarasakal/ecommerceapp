@@ -1,6 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from "react-native";
+import HomeNavbar from "./HomeNavbar";
 
 const PaymentScreen = () => {
     const navigation = useNavigation();
@@ -47,13 +48,23 @@ const PaymentScreen = () => {
 
     return (
         <View style={styles.container}>
-            <Text>Payment Details</Text>
-            <TextInput style={styles.input} placeholder="Card Number" keyboardType="numeric" value={cardNumber} onChangeText={(text) => setCardNumber(text)} />
-            <TextInput style={styles.input} placeholder="Expiry Date" value={expiryDate} onChangeText={(text) => setExpiryDate(text)} />
+            <Text style={styles.headerText}>Ödeme Bilgileri</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="Kart Numarası"
+                keyboardType="numeric"
+                value={cardNumber}
+                onChangeText={(text) => setCardNumber(text)}
+            />
+            <TextInput style={styles.input} placeholder="Son Kullanma Tarihi" value={expiryDate} onChangeText={(text) => setExpiryDate(text)} />
             <TextInput style={styles.input} placeholder="CVV" keyboardType="numeric" value={cvv} onChangeText={(text) => setCvv(text)} />
-            <Button title="Make Payment" onPress={handlePayment} />
-
+            <TouchableOpacity style={styles.paymentButton} onPress={() => navigation.navigate("Payment")}>
+                <Text style={styles.paymentButtonText} onPress={handlePayment}>
+                    Ödemeyi Gerçekleştir
+                </Text>
+            </TouchableOpacity>
             {paymentSuccess && <Text style={styles.successText}>Ödeme başarılı!</Text>}
+            <HomeNavbar navigation={navigation} />
         </View>
     );
 };
@@ -61,20 +72,46 @@ const PaymentScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
         justifyContent: "center",
+        backgroundColor: "white",
+    },
+    headerText: {
+        fontSize: 24,
+        fontWeight: "bold",
+        marginBottom: 16,
+        color: "#333",
+        textAlign: "center",
     },
     input: {
-        height: 40,
-        borderColor: "gray",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 16,
+        marginLeft: 10,
+        marginRight: 10,
         borderWidth: 1,
-        marginBottom: 12,
-        paddingLeft: 8,
+        borderColor: "#E5E3DD",
+        padding: 16,
+        borderRadius: 8,
+        backgroundColor: "#fff",
     },
     successText: {
         marginTop: 20,
         fontSize: 18,
         color: "green",
+        textAlign: "center",
+    },
+    paymentButton: {
+        backgroundColor: "#E5E3DD",
+        padding: 15,
+        marginLeft: 10,
+        width: "50%",
+        borderRadius: 20,
+    },
+    paymentButtonText: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#374151",
         textAlign: "center",
     },
 });
