@@ -6,7 +6,6 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { HeartIcon, ShoppingCartIcon } from "react-native-heroicons/solid";
 import { DatabaseConnection } from "../config/database-connection";
 import Header from "./Header";
-import HomeNavbar from "./HomeNavbar";
 import Navbar from "./Navbar";
 
 const db = DatabaseConnection.getConnection();
@@ -296,7 +295,6 @@ const HomeScreen = () => {
             <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
                 <Text style={styles.buttonText}>Logout</Text>
             </TouchableOpacity>
-            <HomeNavbar navigation={navigation} />
             <Navbar navigation={navigation} />
         </View>
     );
