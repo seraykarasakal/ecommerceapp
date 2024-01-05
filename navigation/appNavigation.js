@@ -4,6 +4,7 @@ import React from "react";
 import useAuth from "../hooks/useAuth";
 import AddProductScreen from "../screens/AddProductScreen";
 import AddUserScreen from "../screens/AddUserScreen";
+import CartScreen from "../screens/CartScreen";
 import DashboardScreen from "../screens/DashboardScreen";
 import EditProductScreen from "../screens/EditProductScreen";
 import EditUserScreen from "../screens/EditUserScreen";
@@ -12,11 +13,10 @@ import HomeScreen from "../screens/HomeScreen";
 import ListProductsScreen from "../screens/ListProductsScreen";
 import ListUsersScreen from "../screens/ListUsersScreen";
 import LoginScreen from "../screens/LoginScreen";
+import PaymentScreen from "../screens/PaymentScreen";
 import SignUpScreen from "../screens/SignUpScreen";
 import UserManagerScreen from "../screens/UserManagerScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
-import CartScreen from "../screens/CartScreen";
-import PaymentScreen from "../screens/PaymentScreen";
 
 const Stack = createNativeStackNavigator();
 export default function AppNavigation() {
@@ -33,11 +33,12 @@ export default function AppNavigation() {
                         <>
                             <Stack.Screen name="Dashboard" options={{ headerShown: false }} component={DashboardScreen} />
                             <Stack.Screen name="AddProduct" options={{ headerShown: false }} component={AddProductScreen} />
-                            <Stack.Screen name="ListProducts" options={{ headerShown: false }} component={ListProductsScreen} />
                             <Stack.Screen name="EditProduct" options={{ headerShown: false }} component={EditProductScreen} />
                         </>
                     ) : (
                         <>
+                            <Stack.Screen name="ListProducts" options={{ headerShown: false }} component={ListProductsScreen} />
+
                             <Stack.Screen name="Home" options={{ headerShown: false }} component={HomeScreen} />
                             <Stack.Screen name="UserManager" options={{ headerShown: false }} component={UserManagerScreen} />
                             <Stack.Screen name="AddUser" options={{ headerShown: false }} component={AddUserScreen} />

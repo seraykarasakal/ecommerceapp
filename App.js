@@ -21,18 +21,18 @@ export default function App() {
         });
         db.transaction(function (txn) {
             txn.executeSql(
-                "CREATE TABLE IF NOT EXISTS table_users(user_id INTEGER PRIMARY KEY AUTOINCREMENT, first_name VARCHAR(30), last_name VARCHAR(30), phone_number VARCHAR(15), address VARCHAR(255))",
+                "CREATE TABLE table_users(user_id VARCHAR(64) PRIMARY KEY, first_name VARCHAR(30) NULL, last_name VARCHAR(30) NULL, phone_number VARCHAR(15) NULL, address VARCHAR(255) NULL)",
                 []
             );
         });
 
         // Favori ürünler tablosu oluşturuluyor
         db.transaction(function (txn) {
-            txn.executeSql("CREATE TABLE IF NOT EXISTS favorites(id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER)", []);
+            txn.executeSql("CREATE TABLE IF NOT EXISTS favorites(product_id INTEGER, user_id VARCHAR(64))", []);
         });
 
         db.transaction(function (txn) {
-            txn.executeSql("CREATE TABLE IF NOT EXISTS table_cart(id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER)", []);
+            txn.executeSql("CREATE TABLE IF NOT EXISTS table_cart(product_id INTEGER, user_id VARCHAR(64))", []);
         });
     }, []);
 

@@ -1,34 +1,91 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { DatabaseConnection } from "../config/database-connection";
-import { HeartIcon, ShoppingCartIcon } from "react-native-heroicons/solid";
-import Footer from "./Footer";
+
 import { useNavigation } from "@react-navigation/native";
-import { signOut } from "firebase/auth";
-import { auth } from "../config/firebase";
-import HomeNavbar from "./HomeNavbar";
+import { getAuth, signOut } from "firebase/auth";
+import { React, useCallback, useEffect, useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { HeartIcon, ShoppingCartIcon } from "react-native-heroicons/solid";
+import { DatabaseConnection } from "../config/database-connection";
 import Header from "./Header";
+import Navbar from "./Navbar";
 
 const db = DatabaseConnection.getConnection();
 
 const HomeScreen = () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    const uid = user ? user.uid : null;
+
     const navigation = useNavigation();
     const [products, setProducts] = useState([]);
+    const [favorites, setFavorites] = useState([]);
+    const [cartItems, setCartItems] = useState([]);
 
+    const isCartItem = () => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    "SELECT * FROM table_cart WHERE user_id = ? ",
+                    [uid],
+                    (_, { rows }) => {
+
+                        const cartItems = [];
+
+                        for (let i = 0; i < rows.length; i++) {
+                            cartItems.push(rows.item(i));
+                        }
+                        resolve(cartItems);
+                    },
+                    (_, error) => {
+                        console.error("Favori ürün eklenirken bir hata oluştu:", error);
+                        reject();
+                    }
+
+                )
+            });
+        });
+    }
+    const isFavorite = () => {
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    "SELECT * FROM favorites WHERE user_id = ? ",
+                    [uid],
+                    (_, { rows }) => {
+                        const favorites = [];
+                        for (let i = 0; i < rows.length; i++) {
+                            favorites.push(rows.item(i));
+                        }
+                        resolve(favorites);
+                    },
+                    (_, error) => {
+                        console.error("Favori ürün eklenirken bir hata oluştu:", error);
+                        reject();
+                    }
+
+                )
+            });
+        });
+    }
     const fetchProducts = useCallback(async () => {
         try {
             const products = await getProductsFromDatabase();
+
+            const updatedFavorites = await isFavorite();
+            const updatedCartItems = await isCartItem();
+            setFavorites(updatedFavorites);
+            setCartItems(updatedCartItems);
             setProducts(products);
         } catch (error) {
             console.error("Ürünleri çekerken bir hata oluştu: ", error);
         }
-    }, []);
+    }, [ getProductsFromDatabase]);
 
+   
     const getProductsFromDatabase = () => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
                 tx.executeSql(
-                    "SELECT p.*, f.product_id IS NOT NULL AS is_favorite, c.product_id IS NOT NULL AS is_cart FROM table_products p LEFT JOIN favorites f ON p.product_id = f.product_id LEFT JOIN table_cart c ON p.product_id = c.product_id",
+                    "SELECT * FROM table_products",
                     [],
                     (_, { rows }) => {
                         const products = [];
@@ -47,68 +104,89 @@ const HomeScreen = () => {
     };
 
     const addFavoriteProduct = useCallback((productId) => {
-        db.transaction((tx) => {
-            tx.executeSql(
-                "INSERT INTO favorites (product_id) VALUES (?)",
-                [productId],
-                (_, results) => {
-                    console.log("Favori ürün eklendi:", results);
-                },
-                (_, error) => {
-                    console.error("Favori ürün eklenirken bir hata oluştu:", error);
-                }
-            );
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    "INSERT INTO favorites (product_id, user_id) VALUES (?,?)",
+                    [productId, uid],
+                    (_, results) => {
+                        console.log("Favori ürün eklendi:", results);
+                        resolve();
+                    },
+                    (_, error) => {
+                        console.error("Favori ürün eklenirken bir hata oluştu:", error);
+                        reject();
+                    }
+                );
+            });
         });
+
     }, []);
 
     const addCart = useCallback((productId) => {
-        db.transaction((tx) => {
-            tx.executeSql(
-                "INSERT INTO table_cart (product_id) VALUES (?)",
-                [productId],
-                (_, results) => {
-                    console.log("Ürün sepete eklendi:", results);
-                },
-                (_, error) => {
-                    console.error("Ürün sepete eklenirken bir hata oluştu:", error);
-                }
-            );
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    "INSERT INTO table_cart (product_id, user_id) VALUES (?,?)",
+                    [productId, uid],
+                    (_, results) => {
+                        console.log("Ürün sepete eklendi:", results);
+                        resolve();
+                    },
+                    (_, error) => {
+                        console.error("Ürün sepete eklenirken bir hata oluştu:", error);
+                        reject();
+                    }
+                );
+            });
         });
+
     }, []);
 
     const removeFavoriteProduct = useCallback((productId) => {
-        db.transaction((tx) => {
-            tx.executeSql(
-                "DELETE FROM favorites WHERE product_id = ?",
-                [productId],
-                (_, results) => {
-                    console.log("Favori ürün kaldırıldı:", results);
-                },
-                (_, error) => {
-                    console.error("Favori ürün kaldırılırken bir hata oluştu:", error);
-                }
-            );
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    "DELETE FROM favorites WHERE product_id = ? AND user_id = ?",
+                    [productId, uid],
+                    (_, results) => {
+                        console.log("Favori ürün kaldırıldı:", results);
+                        resolve();
+                    },
+                    (_, error) => {
+                        console.error("Favori ürün kaldırılırken bir hata oluştu:", error);
+                        reject();
+                    }
+                );
+            });
         });
     }, []);
 
     const removeCart = useCallback((productId) => {
-        db.transaction((tx) => {
-            tx.executeSql(
-                "DELETE FROM table_cart WHERE product_id = ?",
-                [productId],
-                (_, results) => {
-                    console.log("Ürün sepetten kaldırıldı:", results);
-                },
-                (_, error) => {
-                    console.error("Ürün sepetten kaldırılırken bir hata oluştu:", error);
-                }
-            );
+        return new Promise((resolve, reject) => {
+            db.transaction((tx) => {
+                tx.executeSql(
+                    "DELETE FROM table_cart WHERE product_id = ? AND user_id = ?",
+                    [productId, uid],
+                    (_, results) => {
+                        console.log("Ürün sepetten kaldırıldı:", results);
+                        resolve();
+                    },
+                    (_, error) => {
+                        console.error("Ürün sepetten kaldırılırken bir hata oluştu:", error);
+                        reject();
+                    }
+                );
+            });
         });
+
     }, []);
 
-    const toggleFavorite = async (productId, isFavorite) => {
+    const toggleFavorite = async (productId) => {
         try {
-            if (isFavorite) {
+            console.log('toggle favorites');
+            if (favorites.some((favorite) => favorite.product_id === productId)) {
+                console.log(productId);
                 await removeFavoriteProduct(productId);
             } else {
                 await addFavoriteProduct(productId);
@@ -121,16 +199,16 @@ const HomeScreen = () => {
         }
     };
 
-    const toggleCart = async (productId, isCart) => {
+    const toggleCart = async (productId) => {
         try {
-            if (isCart) {
+            console.log('togglecart');
+            if (cartItems.some((cart) => cart.product_id === productId)) {
                 await removeCart(productId);
             } else {
                 await addCart(productId);
             }
-
-            // Sepet durumu güncellenmiş ürünleri setProducts aracılığıyla güncelle
             await fetchProducts();
+
         } catch (error) {
             console.error("Sepet durumu güncellenirken bir hata oluştu: ", error);
         }
@@ -146,37 +224,78 @@ const HomeScreen = () => {
     };
 
     useEffect(() => {
+
+        console.log(uid);
         const unsubscribe = navigation.addListener("focus", () => {
             // Favori ürünler sayfasından dönüldüğünde ürünleri tekrar çek
             fetchProducts();
+
         });
-        // Komponent ayrıldığında event listener'ı temizle
+
+        db.transaction((tx) => {
+            console.log('trnsctsn');
+
+            tx.executeSql(
+                'INSERT INTO table_users (user_id) SELECT ? WHERE NOT EXISTS (SELECT 1 FROM table_users WHERE user_id = ?)',
+                [uid],
+                (tx, result) => {
+                    if (result.rowsAffected > 0) {
+                        console.log('eklendi');
+                    }
+                    else {
+                        console.log("eklenemedi");
+                    }
+
+
+                });
+        });
+
+
         return unsubscribe;
     }, [navigation, fetchProducts]);
 
     return (
         <View style={styles.container}>
+
             <Header label="Anasayfa" />
             <Text style={styles.headerText}>Ürünler</Text>
+        
+            <TouchableOpacity onPress={() => navigation.navigate("FavoriteProducts")}>
+                <Text style={styles.text}>Favori Ürünleri Listele</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("AddUser")}>
+                <Text style={styles.text}>Kullanıcı ekle</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+                <Text style={styles.text}>Sepet Ürünleri Listele</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("ListUsers")}>
+                <Text style={styles.text}>KUllancıcı Listele</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("EditUser")}>
+                <Text style={styles.text}>KUllancıcı düzenle</Text>
+            </TouchableOpacity>
             <View style={styles.products}>
                 {products.map((product) => (
                     <View key={product.product_id} style={styles.productContainer}>
-                        <View style={styles.productInfo}>
-                            <Text style={styles.productName}>{product.product_name}</Text>
-                            <Text style={styles.productPrice}>{product.product_price} TL</Text>
-                        </View>
-                        <View style={styles.iconsContainer}>
-                            <TouchableOpacity onPress={() => toggleFavorite(product.product_id, product.is_favorite)}>
-                                <HeartIcon size={24} color={product.is_favorite ? "red" : "grey"} />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => toggleCart(product.product_id, product.is_cart)}>
-                                <ShoppingCartIcon size={24} color={product.is_cart ? "green" : "grey"} />
-                            </TouchableOpacity>
-                        </View>
+                        <Text>
+                            {product.product_name} - {product.product_price}
+                        </Text>
+
+                        <TouchableOpacity onPress={() => toggleFavorite(product.product_id)}>
+                            <HeartIcon size={24} color={favorites.some((favorite) => favorite.product_id === product.product_id) ? 'red' : 'gray'} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => toggleCart(product.product_id)}>
+                            <ShoppingCartIcon size={24} color={cartItems.some((cart) => cart.product_id === product.product_id) ? 'green' : 'gray'} />
+                        </TouchableOpacity>
                     </View>
                 ))}
             </View>
-            <HomeNavbar navigation={navigation} />
+
+            <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+                <Text style={styles.buttonText}>Logout</Text>
+            </TouchableOpacity>
+            <Navbar navigation={navigation} />
         </View>
     );
 };

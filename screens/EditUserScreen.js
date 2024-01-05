@@ -1,16 +1,18 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
-import { Alert, Button, KeyboardAvoidingView, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { ArrowLeftIcon } from "react-native-heroicons/solid";
+import { Alert, Button, KeyboardAvoidingView, SafeAreaView, ScrollView, Text, TextInput, View } from "react-native";
 import { DatabaseConnection } from "../config/database-connection";
 import Navbar from "./Navbar";
-import Footer from "./Footer";
+
 const db = DatabaseConnection.getConnection();
 
 const EditUser = () => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    const uid = user ? user.uid : null;
     const navigation = useNavigation();
     const route = useRoute();
-    const id = route.params?.id;
 
     let [firstName, setFirstName] = useState("");
     let [lastName, setLastName] = useState("");
@@ -25,9 +27,9 @@ const EditUser = () => {
     };
 
     useEffect(() => {
-        console.log(id);
+        console.log(uid);
         db.transaction((tx) => {
-            tx.executeSql("SELECT * FROM table_users where user_id = ? ", [id], (tx, results) => {
+            tx.executeSql("SELECT * FROM table_users where user_id = ? ", [uid], (tx, results) => {
                 if (results.rows.length > 0) {
                     updateAllStates(
                         results.rows.item(0).first_name,
@@ -44,7 +46,7 @@ const EditUser = () => {
     }, []);
 
     let editUser = () => {
-        console.log(id, firstName, lastName, phoneNumber, address);
+        console.log(uid, firstName, lastName, phoneNumber, address);
 
         if (!firstName) {
             alert("Lütfen İsim Giriniz");
@@ -66,7 +68,7 @@ const EditUser = () => {
         db.transaction((tx) => {
             tx.executeSql(
                 "UPDATE table_users set first_name=?, last_name=?, phone_number=?, address=? where user_id=?",
-                [firstName, lastName, phoneNumber, address, id],
+                [firstName, lastName, phoneNumber, address, uid],
                 (tx, results) => {
                     console.log("Results", results.rowsAffected);
                     if (results.rowsAffected > 0) {
