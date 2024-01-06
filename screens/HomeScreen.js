@@ -1,4 +1,3 @@
-
 import { useNavigation } from "@react-navigation/native";
 import { getAuth, signOut } from "firebase/auth";
 import { React, useCallback, useEffect, useState } from "react";
@@ -6,7 +5,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { HeartIcon, ShoppingCartIcon } from "react-native-heroicons/solid";
 import { DatabaseConnection } from "../config/database-connection";
 import Header from "./Header";
-import Navbar from "./Navbar";
+import HomeNavbar from "./HomeNavbar";
 
 const db = DatabaseConnection.getConnection();
 
@@ -27,7 +26,6 @@ const HomeScreen = () => {
                     "SELECT * FROM table_cart WHERE user_id = ? ",
                     [uid],
                     (_, { rows }) => {
-
                         const cartItems = [];
 
                         for (let i = 0; i < rows.length; i++) {
@@ -39,11 +37,10 @@ const HomeScreen = () => {
                         console.error("Favori ürün eklenirken bir hata oluştu:", error);
                         reject();
                     }
-
-                )
+                );
             });
         });
-    }
+    };
     const isFavorite = () => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
@@ -61,11 +58,10 @@ const HomeScreen = () => {
                         console.error("Favori ürün eklenirken bir hata oluştu:", error);
                         reject();
                     }
-
-                )
+                );
             });
         });
-    }
+    };
     const fetchProducts = useCallback(async () => {
         try {
             const products = await getProductsFromDatabase();
@@ -78,9 +74,8 @@ const HomeScreen = () => {
         } catch (error) {
             console.error("Ürünleri çekerken bir hata oluştu: ", error);
         }
-    }, [ getProductsFromDatabase]);
+    }, [getProductsFromDatabase]);
 
-   
     const getProductsFromDatabase = () => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
@@ -120,7 +115,6 @@ const HomeScreen = () => {
                 );
             });
         });
-
     }, []);
 
     const addCart = useCallback((productId) => {
@@ -140,7 +134,6 @@ const HomeScreen = () => {
                 );
             });
         });
-
     }, []);
 
     const removeFavoriteProduct = useCallback((productId) => {
@@ -179,12 +172,11 @@ const HomeScreen = () => {
                 );
             });
         });
-
     }, []);
 
     const toggleFavorite = async (productId) => {
         try {
-            console.log('toggle favorites');
+            console.log("toggle favorites");
             if (favorites.some((favorite) => favorite.product_id === productId)) {
                 console.log(productId);
                 await removeFavoriteProduct(productId);
@@ -201,14 +193,13 @@ const HomeScreen = () => {
 
     const toggleCart = async (productId) => {
         try {
-            console.log('togglecart');
+            console.log("togglecart");
             if (cartItems.some((cart) => cart.product_id === productId)) {
                 await removeCart(productId);
             } else {
                 await addCart(productId);
             }
             await fetchProducts();
-
         } catch (error) {
             console.error("Sepet durumu güncellenirken bir hata oluştu: ", error);
         }
@@ -224,42 +215,32 @@ const HomeScreen = () => {
     };
 
     useEffect(() => {
-
         console.log(uid);
         const unsubscribe = navigation.addListener("focus", () => {
             // Favori ürünler sayfasından dönüldüğünde ürünleri tekrar çek
             fetchProducts();
-
         });
 
         db.transaction((tx) => {
-            console.log('trnsctsn');
+            console.log("trnsctsn");
 
-            tx.executeSql(
-                'INSERT INTO table_users (user_id) SELECT ? WHERE NOT EXISTS (SELECT 1 FROM table_users WHERE user_id = ?)',
-                [uid],
-                (tx, result) => {
-                    if (result.rowsAffected > 0) {
-                        console.log('eklendi');
-                    }
-                    else {
-                        console.log("eklenemedi");
-                    }
-
-
-                });
+            tx.executeSql("INSERT INTO table_users (user_id) SELECT ? WHERE NOT EXISTS (SELECT 1 FROM table_users WHERE user_id = ?)", [uid], (tx, result) => {
+                if (result.rowsAffected > 0) {
+                    console.log("eklendi");
+                } else {
+                    console.log("eklenemedi");
+                }
+            });
         });
-
 
         return unsubscribe;
     }, [navigation, fetchProducts]);
 
     return (
         <View style={styles.container}>
-
             <Header label="Anasayfa" />
             <Text style={styles.headerText}>Ürünler</Text>
-        
+
             <TouchableOpacity onPress={() => navigation.navigate("FavoriteProducts")}>
                 <Text style={styles.text}>Favori Ürünleri Listele</Text>
             </TouchableOpacity>
@@ -283,10 +264,10 @@ const HomeScreen = () => {
                         </Text>
 
                         <TouchableOpacity onPress={() => toggleFavorite(product.product_id)}>
-                            <HeartIcon size={24} color={favorites.some((favorite) => favorite.product_id === product.product_id) ? 'red' : 'gray'} />
+                            <HeartIcon size={24} color={favorites.some((favorite) => favorite.product_id === product.product_id) ? "red" : "gray"} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => toggleCart(product.product_id)}>
-                            <ShoppingCartIcon size={24} color={cartItems.some((cart) => cart.product_id === product.product_id) ? 'green' : 'gray'} />
+                            <ShoppingCartIcon size={24} color={cartItems.some((cart) => cart.product_id === product.product_id) ? "green" : "gray"} />
                         </TouchableOpacity>
                     </View>
                 ))}
@@ -295,7 +276,7 @@ const HomeScreen = () => {
             <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
                 <Text style={styles.buttonText}>Logout</Text>
             </TouchableOpacity>
-            <Navbar navigation={navigation} />
+            <HomeNavbar navigation={navigation} />
         </View>
     );
 };

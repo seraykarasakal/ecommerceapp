@@ -2,9 +2,11 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { Alert, Button, KeyboardAvoidingView, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View, StyleSheet } from "react-native";
 import { ArrowLeftIcon } from "react-native-heroicons/solid";
-import { DatabaseConnection } from "../config/database-connection";
-const db = DatabaseConnection.getConnection();
 import Header from "./Header";
+
+import { DatabaseConnection } from "../config/database-connection";
+
+const db = DatabaseConnection.getConnection();
 
 const EditProduct = () => {
     const navigation = useNavigation();
