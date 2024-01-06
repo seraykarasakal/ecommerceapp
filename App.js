@@ -21,7 +21,7 @@ export default function App() {
         });
         db.transaction(function (txn) {
             txn.executeSql(
-                "CREATE TABLE table_users(user_id VARCHAR(64) PRIMARY KEY, first_name VARCHAR(30) NULL, last_name VARCHAR(30) NULL, phone_number VARCHAR(15) NULL, address VARCHAR(255) NULL)",
+                "CREATE TABLE IF NOT EXISTS table_users(user_id VARCHAR(64) PRIMARY KEY, first_name VARCHAR(30) NULL, last_name VARCHAR(30) NULL, phone_number VARCHAR(15) NULL, address VARCHAR(255) NULL)",
                 []
             );
         });

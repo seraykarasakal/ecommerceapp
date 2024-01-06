@@ -241,7 +241,7 @@ const HomeScreen = () => {
             <Header label="Anasayfa" />
             <Text style={styles.headerText}>Ürünler</Text>
 
-            <TouchableOpacity onPress={() => navigation.navigate("FavoriteProducts")}>
+            {/* <TouchableOpacity onPress={() => navigation.navigate("FavoriteProducts")}>
                 <Text style={styles.text}>Favori Ürünleri Listele</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate("AddUser")}>
@@ -255,27 +255,26 @@ const HomeScreen = () => {
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate("EditUser")}>
                 <Text style={styles.text}>KUllancıcı düzenle</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <View style={styles.products}>
                 {products.map((product) => (
                     <View key={product.product_id} style={styles.productContainer}>
-                        <Text>
-                            {product.product_name} - {product.product_price}
-                        </Text>
-
-                        <TouchableOpacity onPress={() => toggleFavorite(product.product_id)}>
-                            <HeartIcon size={24} color={favorites.some((favorite) => favorite.product_id === product.product_id) ? "red" : "gray"} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => toggleCart(product.product_id)}>
-                            <ShoppingCartIcon size={24} color={cartItems.some((cart) => cart.product_id === product.product_id) ? "green" : "gray"} />
-                        </TouchableOpacity>
+                        <View style={styles.productInfo}>
+                            <Text style={styles.productName}>{product.product_name}</Text>
+                            <Text style={styles.productDescription}>{product.product_description}</Text>
+                            <Text style={styles.productPrice}>{product.product_price} TL</Text>
+                        </View>
+                        <View style={styles.iconsContainer}>
+                            <TouchableOpacity onPress={() => toggleFavorite(product.product_id)}>
+                                <HeartIcon size={24} color={favorites.some((favorite) => favorite.product_id === product.product_id) ? "red" : "gray"} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => toggleCart(product.product_id)}>
+                                <ShoppingCartIcon size={24} color={cartItems.some((cart) => cart.product_id === product.product_id) ? "green" : "gray"} />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 ))}
             </View>
-
-            <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-                <Text style={styles.buttonText}>Logout</Text>
-            </TouchableOpacity>
             <HomeNavbar navigation={navigation} />
         </View>
     );
@@ -319,15 +318,21 @@ const styles = StyleSheet.create({
         marginBottom: 8,
         color: "#333",
     },
+    productDescription: {
+        fontSize: 16,
+        marginBottom: 8,
+        color: "#333",
+    },
     productPrice: {
         fontSize: 16,
-        color: "#666",
+        color: "#333",
     },
     iconsContainer: {
         flexDirection: "row",
         alignItems: "center",
         gap: 7,
     },
+
     logoutButton: {
         backgroundColor: "red",
         padding: 16,

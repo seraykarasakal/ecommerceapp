@@ -7,13 +7,10 @@ import { DatabaseConnection } from "../config/database-connection";
 import Header from "./Header";
 import HomeNavbar from "./HomeNavbar";
 
-
 const db = DatabaseConnection.getConnection();
 
 const FavoriteProductsScreen = () => {
     const navigation = useNavigation();
-
-
 
     const auth = getAuth();
     const user = auth.currentUser;
@@ -23,37 +20,33 @@ const FavoriteProductsScreen = () => {
     const [cartItems, setCartItems] = useState([]);
     const [products, setProducts] = useState([]);
 
-    
     useEffect(() => {
         const unsubscribe = navigation.addListener("focus", () => {
             // Favori ürünler sayfasından dönüldüğünde ürünleri tekrar çek
             fetchProducts();
-
         });
         return unsubscribe;
-    }, [navigation,fetchProducts]);
+    }, [navigation, fetchProducts]);
     const getFavoriteProductsFromDatabase = () => {
-        return new Promise((resolve,reject) => {
+        return new Promise((resolve, reject) => {
             db.transaction((tx) => {
                 tx.executeSql(
                     "SELECT * FROM favorites INNER JOIN table_products ON favorites.product_id = table_products.product_id WHERE favorites.user_id = ?",
-                    [uid], 
-                    (_, {rows}) => {
+                    [uid],
+                    (_, { rows }) => {
                         var temp = [];
                         for (let i = 0; i < rows.length; ++i) {
                             temp.push(rows.item(i));
                         }
                         resolve(temp);
                     },
-                    (_,error)=> {
-                        console.error('Veritabanından ürünleri çekerken hata oluştu!');
+                    (_, error) => {
+                        console.error("Veritabanından ürünleri çekerken hata oluştu!");
                         reject(error);
                     }
-                    );
+                );
             });
-        })
-        
-
+        });
     };
     const isFavorite = () => {
         return new Promise((resolve, reject) => {
@@ -72,11 +65,10 @@ const FavoriteProductsScreen = () => {
                         console.error("Favori ürün eklenirken bir hata oluştu:", error);
                         reject();
                     }
-
-                )
+                );
             });
         });
-    }
+    };
     const isCartItem = () => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
@@ -84,7 +76,6 @@ const FavoriteProductsScreen = () => {
                     "SELECT * FROM table_cart WHERE user_id = ? ",
                     [uid],
                     (_, { rows }) => {
-
                         const cartItems = [];
 
                         for (let i = 0; i < rows.length; i++) {
@@ -96,11 +87,10 @@ const FavoriteProductsScreen = () => {
                         console.error("Favori ürün eklenirken bir hata oluştu:", error);
                         reject();
                     }
-
-                )
+                );
             });
         });
-    }
+    };
     const handleToggleFavorite = async (productId, isFavorite) => {
         try {
             if (isFavorite) {
@@ -142,7 +132,6 @@ const FavoriteProductsScreen = () => {
                 );
             });
         });
-
     }, []);
     const addFavoriteProduct = useCallback((productId) => {
         return new Promise((resolve, reject) => {
@@ -161,7 +150,6 @@ const FavoriteProductsScreen = () => {
                 );
             });
         });
-
     }, []);
     const toggleFavoriteInDatabase = (productId, isFavorite) => {
         return new Promise((resolve, reject) => {
@@ -190,7 +178,7 @@ const FavoriteProductsScreen = () => {
             db.transaction((tx) => {
                 tx.executeSql(
                     "DELETE FROM favorites WHERE product_id = ? AND user_id = ?",
-                    [productId,uid],
+                    [productId, uid],
                     (_, results) => {
                         console.log("Favori ürün kaldırıldı:", results);
                         resolve();
@@ -202,7 +190,7 @@ const FavoriteProductsScreen = () => {
                 );
             });
         });
-    },[]);
+    }, []);
     const removeCart = useCallback((productId) => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
@@ -220,7 +208,6 @@ const FavoriteProductsScreen = () => {
                 );
             });
         });
-
     }, []);
 
     const fetchProducts = useCallback(async () => {
@@ -235,13 +222,13 @@ const FavoriteProductsScreen = () => {
         } catch (error) {
             console.error("Ürünleri çekerken bir hata oluştu: ", error);
         }
-    }, [ getFavoriteProductsFromDatabase]);
+    }, [getFavoriteProductsFromDatabase]);
 
     const toggleFavorite = async (productId) => {
         try {
-            console.log('toggle favorites');
+            console.log("toggle favorites");
             if (favorites.some((favorite) => favorite.product_id === productId)) {
-                console.log(productId + 'tooglefav');
+                console.log(productId + "tooglefav");
                 await removeFavoriteProduct(productId);
             } else {
                 await addFavoriteProduct(productId);
@@ -255,42 +242,43 @@ const FavoriteProductsScreen = () => {
     };
     const toggleCart = async (productId) => {
         try {
-            console.log('togglecart');
+            console.log("togglecart");
             if (cartItems.some((cart) => cart.product_id === productId)) {
                 await removeCart(productId);
             } else {
                 await addCart(productId);
             }
             await fetchProducts();
-
         } catch (error) {
             console.error("Sepet durumu güncellenirken bir hata oluştu: ", error);
         }
     };
     return (
         <View style={styles.container}>
-            <Header label = "Favorilerim"/>
+            <Header label="Favorilerim" />
             <Text style={styles.headerText}>Favori Ürünler</Text>
             <View style={styles.products}>
                 {products.map((product) => (
                     <View key={product.product_id} style={styles.productContainer}>
-                        <Text>
-                            {product.product_name} - {product.product_price}
-                        </Text>
-                        <View style= {styles.iconsContainer}>
-                        <TouchableOpacity onPress={() => toggleFavorite(product.product_id)}>
-                            <HeartIcon size={24} color={favorites.some((favorite) => favorite.product_id === product.product_id) ? 'red' : 'gray'} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => toggleCart(product.product_id)}>
-                            <ShoppingCartIcon size={24} color={cartItems.some((cart) => cart.product_id === product.product_id) ? 'green' : 'gray'} />
-                        </TouchableOpacity>
+                        <View style={styles.productInfo}>
+                            <Text style={styles.productName}>{product.product_name}</Text>
+                            <Text style={styles.productDescription}>{product.product_description}</Text>
+                            <Text style={styles.productPrice}>{product.product_price} TL</Text>
+                        </View>
+                        <View style={styles.iconsContainer}>
+                            <TouchableOpacity onPress={() => toggleFavorite(product.product_id)}>
+                                <HeartIcon size={24} color={favorites.some((favorite) => favorite.product_id === product.product_id) ? "red" : "gray"} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => toggleCart(product.product_id)}>
+                                <ShoppingCartIcon size={24} color={cartItems.some((cart) => cart.product_id === product.product_id) ? "green" : "gray"} />
+                            </TouchableOpacity>
                         </View>
                     </View>
                 ))}
             </View>
             <HomeNavbar navigation={navigation} />
         </View>
-    )
+    );
 };
 
 const styles = StyleSheet.create({
@@ -336,9 +324,14 @@ const styles = StyleSheet.create({
         marginBottom: 8,
         color: "#333",
     },
+    productDescription: {
+        fontSize: 16,
+        marginBottom: 8,
+        color: "#333",
+    },
     productPrice: {
         fontSize: 16,
-        color: "#666",
+        color: "#333",
     },
 });
 

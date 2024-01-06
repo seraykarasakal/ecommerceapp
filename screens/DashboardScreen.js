@@ -166,6 +166,8 @@ const styles = StyleSheet.create({
         color: "#111",
         fontSize: 16,
         fontWeight: "700",
+        marginBottom: 2,
+        marginTop: 8,
     },
     textbottom: {
         color: "#111",

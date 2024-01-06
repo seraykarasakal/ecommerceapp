@@ -109,15 +109,10 @@ const styles = StyleSheet.create({
     NavContainer: {
         position: "absolute",
         alignItems: "center",
-        position: "absolute",
-        alignItems: "center",
         bottom: 30,
+        marginLeft: 35,
     },
     NavBar: {
-        flexDirection: "row",
-        backgroundColor: "#eee",
-        width: "90%",
-        justifyContent: "space-evenly",
         flexDirection: "row",
         backgroundColor: "#eee",
         width: "90%",
@@ -128,11 +123,9 @@ const styles = StyleSheet.create({
         height: 26,
         width: 26,
         color: "#877dfa",
-        color: "#877dfa",
     },
     IconBehave: {
         padding: 14,
-        backgroundColor: "#eee",
         backgroundColor: "#eee",
     },
     activeButton: {
