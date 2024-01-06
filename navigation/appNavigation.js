@@ -34,10 +34,11 @@ export default function AppNavigation() {
                             <Stack.Screen name="Dashboard" options={{ headerShown: false }} component={DashboardScreen} />
                             <Stack.Screen name="AddProduct" options={{ headerShown: false }} component={AddProductScreen} />
                             <Stack.Screen name="EditProduct" options={{ headerShown: false }} component={EditProductScreen} />
-                            <Stack.Screen name="ListProducts" options={{ headerShown: false }} component={ListProductsScreen} />
                         </>
                     ) : (
                         <>
+                            <Stack.Screen name="ListProducts" options={{ headerShown: false }} component={ListProductsScreen} />
+
                             <Stack.Screen name="Home" options={{ headerShown: false }} component={HomeScreen} />
                             <Stack.Screen name="UserManager" options={{ headerShown: false }} component={UserManagerScreen} />
                             <Stack.Screen name="AddUser" options={{ headerShown: false }} component={AddUserScreen} />
