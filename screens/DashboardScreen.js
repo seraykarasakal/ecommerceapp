@@ -94,7 +94,7 @@ const DashboardScreen = () => {
     return (
         <View style={styles.container}>
             <Header label="Dashboard Screen" />
-            <ScrollView style={styles.content}>
+            <View style={styles.content}>
                 <FlatList
                     style={{ marginTop: 30 }}
                     contentContainerStyle={styles.cardContainer}
@@ -102,7 +102,7 @@ const DashboardScreen = () => {
                     keyExtractor={(item, index) => index.toString()}
                     renderItem={({ item }) => listProductsView(item)}
                 />
-            </ScrollView>
+            </View>
             <Navbar navigation={navigation} />
         </View>
     );
