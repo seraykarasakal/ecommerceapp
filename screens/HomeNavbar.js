@@ -113,6 +113,7 @@ const styles = StyleSheet.create({
         position: "absolute",
         alignItems: "center",
         bottom: 30,
+        marginLeft: 35,
     },
     NavBar: {
         flexDirection: "row",
