@@ -23,7 +23,7 @@ const FavoriteProductsScreen = () => {
     const [cartItems, setCartItems] = useState([]);
     const [products, setProducts] = useState([]);
 
-    
+
     useEffect(() => {
         const unsubscribe = navigation.addListener("focus", () => {
             // Favori ürünler sayfasından dönüldüğünde ürünleri tekrar çek
@@ -31,28 +31,28 @@ const FavoriteProductsScreen = () => {
 
         });
         return unsubscribe;
-    }, [navigation,fetchProducts]);
+    }, [navigation, fetchProducts]);
     const getFavoriteProductsFromDatabase = () => {
-        return new Promise((resolve,reject) => {
+        return new Promise((resolve, reject) => {
             db.transaction((tx) => {
                 tx.executeSql(
                     "SELECT * FROM favorites INNER JOIN table_products ON favorites.product_id = table_products.product_id WHERE favorites.user_id = ?",
-                    [uid], 
-                    (_, {rows}) => {
+                    [uid],
+                    (_, { rows }) => {
                         var temp = [];
                         for (let i = 0; i < rows.length; ++i) {
                             temp.push(rows.item(i));
                         }
                         resolve(temp);
                     },
-                    (_,error)=> {
+                    (_, error) => {
                         console.error('Veritabanından ürünleri çekerken hata oluştu!');
                         reject(error);
                     }
-                    );
+                );
             });
         })
-        
+
 
     };
     const isFavorite = () => {
@@ -190,7 +190,7 @@ const FavoriteProductsScreen = () => {
             db.transaction((tx) => {
                 tx.executeSql(
                     "DELETE FROM favorites WHERE product_id = ? AND user_id = ?",
-                    [productId,uid],
+                    [productId, uid],
                     (_, results) => {
                         console.log("Favori ürün kaldırıldı:", results);
                         resolve();
@@ -202,7 +202,7 @@ const FavoriteProductsScreen = () => {
                 );
             });
         });
-    },[]);
+    }, []);
     const removeCart = useCallback((productId) => {
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
@@ -235,7 +235,7 @@ const FavoriteProductsScreen = () => {
         } catch (error) {
             console.error("Ürünleri çekerken bir hata oluştu: ", error);
         }
-    }, [ getFavoriteProductsFromDatabase]);
+    }, [getFavoriteProductsFromDatabase]);
 
     const toggleFavorite = async (productId) => {
         try {
@@ -269,7 +269,7 @@ const FavoriteProductsScreen = () => {
     };
     return (
         <View style={styles.container}>
-            <Header label = "Favorilerim"/>
+            <Header label="Favorilerim" />
             <Text style={styles.headerText}>Favori Ürünler</Text>
             <View style={styles.products}>
                 {products.map((product) => (
@@ -277,13 +277,13 @@ const FavoriteProductsScreen = () => {
                         <Text>
                             {product.product_name} - {product.product_price}
                         </Text>
-                        <View style= {styles.iconsContainer}>
-                        <TouchableOpacity onPress={() => toggleFavorite(product.product_id)}>
-                            <HeartIcon size={24} color={favorites.some((favorite) => favorite.product_id === product.product_id) ? 'red' : 'gray'} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => toggleCart(product.product_id)}>
-                            <ShoppingCartIcon size={24} color={cartItems.some((cart) => cart.product_id === product.product_id) ? 'green' : 'gray'} />
-                        </TouchableOpacity>
+                        <View style={styles.iconsContainer}>
+                            <TouchableOpacity onPress={() => toggleFavorite(product.product_id)}>
+                                <HeartIcon size={24} color={favorites.some((favorite) => favorite.product_id === product.product_id) ? 'red' : 'gray'} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => toggleCart(product.product_id)}>
+                                <ShoppingCartIcon size={24} color={cartItems.some((cart) => cart.product_id === product.product_id) ? 'green' : 'gray'} />
+                            </TouchableOpacity>
                         </View>
                     </View>
                 ))}

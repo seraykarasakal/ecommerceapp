@@ -237,7 +237,7 @@ const CartScreen = () => {
                 <View style={styles.totalContainer}>
                     <Text style={styles.totalText}>Toplam: {calculateTotal()} TL</Text>
                 </View>
-                <TouchableOpacity style={styles.paymentButton} onPress={() => navigation.navigate("Payment")}>
+                <TouchableOpacity style={styles.paymentButton} onPress={() => navigation.navigate("Payment",{total : calculateTotal()})}>
                     <Text style={styles.paymentButtonText}>Ödemeye Geç</Text>
                 </TouchableOpacity>
 

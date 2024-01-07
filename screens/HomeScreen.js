@@ -256,6 +256,9 @@ const HomeScreen = () => {
             <TouchableOpacity onPress={() => navigation.navigate("EditUser")}>
                 <Text style={styles.text}>KUllancıcı düzenle</Text>
             </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("Orders")}>
+                <Text style={styles.text}>Siparişlerim</Text>
+            </TouchableOpacity>
             <View style={styles.products}>
                 {products.map((product) => (
                     <View key={product.product_id} style={styles.productContainer}>

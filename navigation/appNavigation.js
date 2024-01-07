@@ -13,6 +13,8 @@ import HomeScreen from "../screens/HomeScreen";
 import ListProductsScreen from "../screens/ListProductsScreen";
 import ListUsersScreen from "../screens/ListUsersScreen";
 import LoginScreen from "../screens/LoginScreen";
+import OrderDetailsScreen from "../screens/OrderDetailsScreen";
+import OrdersScreen from "../screens/OrdersScreen";
 import PaymentScreen from "../screens/PaymentScreen";
 import SignUpScreen from "../screens/SignUpScreen";
 import UserManagerScreen from "../screens/UserManagerScreen";
@@ -47,6 +49,10 @@ export default function AppNavigation() {
                             <Stack.Screen name="FavoriteProducts" options={{ headerShown: false }} component={FavoriteProductsScreen} />
                             <Stack.Screen name="Cart" options={{ headerShown: false }} component={CartScreen} />
                             <Stack.Screen name="Payment" options={{ headerShown: false }} component={PaymentScreen} />
+                            <Stack.Screen name="Orders" options={{ headerShown: false }} component={OrdersScreen} />
+                            <Stack.Screen name="OrderDetails" options={{ headerShown: false }} component={OrderDetailsScreen} />
+
+
                         </>
                     )}
                 </Stack.Navigator>
