@@ -3,12 +3,11 @@ import { getAuth } from "firebase/auth";
 import { React, useCallback, useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { DatabaseConnection } from "../config/database-connection";
-
 const db = DatabaseConnection.getConnection();
 
 
 const OrderDetailsScreen = () => {
-    
+
     const route = useRoute();
     const orderId = route.params?.orderId;
     const auth = getAuth();
@@ -20,7 +19,6 @@ const OrderDetailsScreen = () => {
 
     const getOrderItemsFromDatabase = useCallback(async () => {
         return new Promise((resolve, reject) => {
-            console.log("orderid : : " + orderId);
             db.transaction(async (tx) => {
                 tx.executeSql(
                     "SELECT * FROM order_items INNER JOIN table_products ON order_items.product_id = table_products.product_id WHERE order_items.order_id = ?",
@@ -44,7 +42,7 @@ const OrderDetailsScreen = () => {
         try {
             const getOrderItems = await getOrderItemsFromDatabase();
             setOrderItems(getOrderItems);
-            
+
         } catch (error) {
             console.error("HATA!", error);
         }
@@ -55,21 +53,26 @@ const OrderDetailsScreen = () => {
     }, [fetchOrderItems]);
     return (
         <View style={styles.container}>
-            {orderItems.map((order) => (
-                <View key={order.order_item_id} style={styles.productContainer}>
-                    
-                        <Text>
-                            {order.product_name}
-                        </Text>
-                    
-                </View>
-            ))}
+            <Text style={styles.headerText}>Sipariş Ürünleri</Text>
+            <View style={styles.products}>
+                {orderItems.map((order) => (
+                    <View key={order.order_item_id} style={styles.productContainer}>
+                        <View style={styles.productInfo}>
+                            <Text style={styles.productName}>{order.product_name}</Text>
+                            <Text style={styles.productDescription}>{order.product_description}</Text>
+                            <Text style={styles.productPrice}>{order.product_price} TL</Text>
+                                
+                            
+                        </View>
+
+                    </View>
+                ))}
+            </View>
         </View>
     );
 };
 const styles = StyleSheet.create({
     container: {
-        paddingTop: 50,
         flex: 1,
         backgroundColor: "white",
     },
@@ -106,15 +109,21 @@ const styles = StyleSheet.create({
         marginBottom: 8,
         color: "#333",
     },
+    productDescription: {
+        fontSize: 16,
+        marginBottom: 8,
+        color: "#333",
+    },
     productPrice: {
         fontSize: 16,
-        color: "#666",
+        color: "#333",
     },
     iconsContainer: {
         flexDirection: "row",
         alignItems: "center",
         gap: 7,
     },
+
     logoutButton: {
         backgroundColor: "red",
         padding: 16,

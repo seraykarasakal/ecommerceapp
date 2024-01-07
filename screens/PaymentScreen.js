@@ -27,21 +27,20 @@ const PaymentScreen = () => {
                 console.log("Lütfen tüm kart bilgilerini doldurun.");
                 return;
             }
-
-            
-            
-                console.log("Ödeme başarılı!");
-                setPaymentSuccess(true);
+            console.log("Ödeme başarılı!");
+            setPaymentSuccess(true);
 
 
-                const getOrder = await createOrder();
-                console.log("getorder orderid: " + getOrder);
-                orderId= getOrder;
-                console.log("order id son : "+ orderId);
-                 
-                await createOrderItem();
+            const getOrder = await createOrder();
+            orderId = getOrder;
 
-            
+            await createOrderItem();
+            console.log("Ödeme Başarılı! Yönlendiriliyorsunuz...");
+            const timeoutId = setTimeout(() => {
+                navigation.replace('Orders');
+            }, 1500);
+            return () => clearTimeout(timeoutId);
+
         } catch (error) {
             console.error("Ödeme işlemi sırasında hata:", error);
         }
@@ -58,8 +57,6 @@ const PaymentScreen = () => {
 
                         for (let i = 0; i < rows.length; i++) {
                             cartItem.push(rows.item(i));
-                            console.log("cart row: "+ rows.item(i).product_id);
-                            console.log(cartItem.at(i));
                         }
                         resolve(cartItem);
                     },
@@ -73,16 +70,12 @@ const PaymentScreen = () => {
         });
     }
     const createOrder = async () => {
-        console.log('createorder çalıstı');
-        console.log(total);
-
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
                 tx.executeSql(
                     "INSERT INTO table_orders (user_id,total_amount) VALUES (?,?)",
                     [uid, total],
                     (_, { insertId }) => {
-                        console.log("orderid : " + insertId);
                         const tempOrderid = insertId;
                         resolve(tempOrderid);
                     },
@@ -98,7 +91,7 @@ const PaymentScreen = () => {
         return new Promise((resolve, reject) => {
 
             db.transaction((tx) => {
-                
+
                 cartItems.forEach((item) => {
                     const productId = item.product_id;
                     console.log("orderitems sql girdi");
@@ -106,9 +99,6 @@ const PaymentScreen = () => {
                         "INSERT INTO order_items (order_id, product_id) VALUES (?,?)",
                         [orderId, productId],
                         (_, result) => {
-                            console.log('order_items insert success', result);
-                            console.log("productid " + productId);
-                            console.log("orderid : " + orderId);
                             resolve();
                         },
                         (_, error) => {
@@ -123,7 +113,7 @@ const PaymentScreen = () => {
     const fetchCart = async () => {
         try {
             const getCartItems = await isCartItem();
-            
+
             setCartItems(getCartItems);
         } catch (error) {
             console.error("Diğer işlemler sırasında hata:", error);
@@ -131,7 +121,7 @@ const PaymentScreen = () => {
     };
     useEffect(() => {
         fetchCart();
-        
+
     }, [navigation]);
 
     return (
