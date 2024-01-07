@@ -206,6 +206,10 @@ export default function UserManagerScreen() {
                 <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
                     <Text style={styles.buttonText}>Log Out</Text>
                 </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => navigation.navigate("Orders")} style={styles.logoutButton}>
+                    <Text style={styles.buttonText}>Siparişlerim</Text>
+                </TouchableOpacity>
             </ScrollView>
             <HomeNavbar navigation={navigation} />
         </View>
@@ -262,7 +266,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         width: "50%",
         borderRadius: 20,
-        marginBottom: 10,
+        marginBottom: 5,
     },
     changePasswordText: {
         fontSize: 18,
@@ -276,6 +280,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         width: "50%",
         borderRadius: 20,
+        marginBottom: 5,
     },
     buttonText: {
         fontSize: 18,
