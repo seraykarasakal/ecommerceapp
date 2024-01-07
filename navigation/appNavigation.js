@@ -17,6 +17,8 @@ import PaymentScreen from "../screens/PaymentScreen";
 import SignUpScreen from "../screens/SignUpScreen";
 import UserManagerScreen from "../screens/UserManagerScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
+import OrderDetailsScreen from "../screens/OrderDetailsScreen";
+import OrdersScreen from "../screens/OrdersScreen";
 
 const Stack = createNativeStackNavigator();
 export default function AppNavigation() {
@@ -34,11 +36,10 @@ export default function AppNavigation() {
                             <Stack.Screen name="Dashboard" options={{ headerShown: false }} component={DashboardScreen} />
                             <Stack.Screen name="AddProduct" options={{ headerShown: false }} component={AddProductScreen} />
                             <Stack.Screen name="EditProduct" options={{ headerShown: false }} component={EditProductScreen} />
+                            <Stack.Screen name="ListProducts" options={{ headerShown: false }} component={ListProductsScreen} />
                         </>
                     ) : (
                         <>
-                            <Stack.Screen name="ListProducts" options={{ headerShown: false }} component={ListProductsScreen} />
-
                             <Stack.Screen name="Home" options={{ headerShown: false }} component={HomeScreen} />
                             <Stack.Screen name="UserManager" options={{ headerShown: false }} component={UserManagerScreen} />
                             <Stack.Screen name="AddUser" options={{ headerShown: false }} component={AddUserScreen} />
@@ -47,6 +48,8 @@ export default function AppNavigation() {
                             <Stack.Screen name="FavoriteProducts" options={{ headerShown: false }} component={FavoriteProductsScreen} />
                             <Stack.Screen name="Cart" options={{ headerShown: false }} component={CartScreen} />
                             <Stack.Screen name="Payment" options={{ headerShown: false }} component={PaymentScreen} />
+                            <Stack.Screen name="OrderDetails" options={{ headerShown: false }} component={OrderDetailsScreen} />
+                            <Stack.Screen name="Orders" options={{ headerShown: false }} component={OrdersScreen} />
                         </>
                     )}
                 </Stack.Navigator>

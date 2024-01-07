@@ -1,7 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import { getAuth, signOut } from "firebase/auth";
 import { React, useCallback, useEffect, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, Image, ScrollView } from "react-native";
 import { HeartIcon, ShoppingCartIcon } from "react-native-heroicons/solid";
 import { DatabaseConnection } from "../config/database-connection";
 import Header from "./Header";
@@ -256,14 +256,28 @@ const HomeScreen = () => {
             <TouchableOpacity onPress={() => navigation.navigate("EditUser")}>
                 <Text style={styles.text}>KUllancıcı düzenle</Text>
             </TouchableOpacity> */}
-            <View style={styles.products}>
+            <ScrollView style={styles.products}>
                 {products.map((product) => (
                     <View key={product.product_id} style={styles.productContainer}>
-                        <View style={styles.productInfo}>
-                            <Text style={styles.productName}>{product.product_name}</Text>
-                            <Text style={styles.productDescription}>{product.product_description}</Text>
-                            <Text style={styles.productPrice}>{product.product_price} TL</Text>
+                        <View style={styles.productcard}>
+                            {!product.image_uri ? (
+                                <></>
+                            ) : (
+                                <>
+                                    {product.image_uri && (
+                                        <View style={styles.imageContainer}>
+                                            <Image source={{ uri: product.image_uri }} style={styles.images} />
+                                        </View>
+                                    )}
+                                </>
+                            )}
+                            <View style={styles.productInfo}>
+                                <Text style={styles.productName}>{product.product_name}</Text>
+                                <Text style={styles.productDescription}>{product.product_description}</Text>
+                                <Text style={styles.productPrice}>{product.product_price} TL</Text>
+                            </View>
                         </View>
+
                         <View style={styles.iconsContainer}>
                             <TouchableOpacity onPress={() => toggleFavorite(product.product_id)}>
                                 <HeartIcon size={24} color={favorites.some((favorite) => favorite.product_id === product.product_id) ? "red" : "gray"} />
@@ -274,7 +288,7 @@ const HomeScreen = () => {
                         </View>
                     </View>
                 ))}
-            </View>
+            </ScrollView>
             <HomeNavbar navigation={navigation} />
         </View>
     );
@@ -296,21 +310,30 @@ const styles = StyleSheet.create({
     products: {
         flex: 1,
     },
+    productcard: {
+        flex: 1,
+        gap: 2,
+        flexDirection: "row",
+        justifyContent: "flex-start",
+    },
     productContainer: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
         marginBottom: 16,
-        marginLeft: 10,
-        marginRight: 10,
+        marginLeft: 5,
+        marginRight: 5,
         borderWidth: 1,
         borderColor: "#E5E3DD",
-        padding: 16,
+        padding: 10,
         borderRadius: 8,
         backgroundColor: "#fff",
     },
     productInfo: {
         flex: 1,
+        marginLeft: 5,
+        flexDirection: "column",
+        justifyContent: "center",
     },
     productName: {
         fontSize: 18,
@@ -344,6 +367,22 @@ const styles = StyleSheet.create({
         color: "white",
         fontSize: 16,
         fontWeight: "bold",
+    },
+    imgcont: {
+        flex: 1,
+        alignItems: "flex-start",
+        justifyContent: "flex-start",
+    },
+    imageContainer: {
+        marginLeft: 15,
+        flex: 1,
+        alignItems: "flex-start",
+        justifyContent: "flex-start",
+    },
+    images: {
+        width: 100,
+        height: 100,
+        borderRadius: 40,
     },
 });
 export default HomeScreen;

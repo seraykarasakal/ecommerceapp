@@ -1,11 +1,14 @@
 import { useNavigation } from "@react-navigation/native";
 import { signOut } from "firebase/auth";
 import React, { useState } from "react";
-import { Alert, Button, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Button, StyleSheet, Text, TextInput, TouchableOpacity, View, Platform, Image, ActivityIndicator } from "react-native";
 import { ArrowLeftIcon } from "react-native-heroicons/solid";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { DatabaseConnection } from "../config/database-connection";
-import { auth } from "../config/firebase";
+import { auth, storage } from "../config/firebase";
+import * as ImagePicker from "expo-image-picker";
+import { getDownloadURL, uploadBytes, ref } from "firebase/storage";
+
 import Navbar from "./Navbar";
 import Header from "./Header";
 
@@ -16,7 +19,55 @@ const AddProductScreen = () => {
     let [productName, setProductName] = useState("");
     let [productDescription, setProductDescription] = useState("");
     let [productPrice, setProductPrice] = useState("");
-    let createProduct = () => {
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [image, setImage] = useState(null);
+    const [uri, setUri] = useState(null);
+    const pickImage = async () => {
+        setIsLoading(true);
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            setUri(result.assets[0].uri);
+            alert("Görsel ekleme işlemi başarılı.Gönder butonuna basınız");
+            setIsLoading(false);
+        } else {
+            setImage(null);
+            setIsLoading(false);
+        }
+    };
+    const uploadImageAsync = async (uri) => {
+        // Why are we using XMLHttpRequest? See:
+        // https://github.com/expo/expo/issues/2402#issuecomment-443726662
+        const blob = await new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                resolve(xhr.response);
+            };
+            xhr.onerror = function (e) {
+                console.log(e);
+                reject(new TypeError("Network request failed"));
+            };
+            xhr.responseType = "blob";
+            xhr.open("GET", uri, true);
+            xhr.send(null);
+        });
+        try {
+            const storageRef = ref(storage, `Image/${Date.now()}`);
+            const result = await uploadBytes(storageRef, blob);
+            blob.close();
+            return await getDownloadURL(storageRef);
+        } catch (error) {
+            alert(`error: ${error}`);
+        }
+    };
+
+    let createProduct = async () => {
         console.log(productName, productDescription, productPrice);
 
         if (!productName) {
@@ -26,17 +77,23 @@ const AddProductScreen = () => {
         if (!productPrice) {
             alert("Lütfen ürün fiyatı giriniz!");
         }
+        let uploadURL = null;
+        if (uri) {
+            uploadURL = await uploadImageAsync(uri);
+            console.log("Upload URL:", uploadURL);
+            setImage(uploadURL);
+        }
 
         db.transaction(function (tx) {
             tx.executeSql(
-                "INSERT INTO table_products (product_name,product_description,product_price) VALUES (?,?,?)",
-                [productName, productDescription, productPrice],
+                "INSERT INTO table_products (product_name,product_description,product_price,image_uri) VALUES (?,?,?,?)",
+                [productName, productDescription, productPrice, uploadURL],
                 (tx, results) => {
                     console.log("Results", results.rowsAffected);
                     if (results.rowsAffected > 0) {
                         Alert.alert(
-                            "Basarili!",
-                            "Ürün kaydi başarili!",
+                            "Başarılı!",
+                            "Ürün kaydı başarılı!",
                             [
                                 {
                                     text: "Ok",
@@ -79,7 +136,6 @@ const AddProductScreen = () => {
                     onChangeText={(productDescription) => setProductDescription(productDescription)}
                     maxLength={255}
                     numberOfLines={4}
-                    multiline={true}
                 />
                 <Text style={styles.productName}>Ürün Fiyatı</Text>
 
@@ -90,6 +146,30 @@ const AddProductScreen = () => {
                     maxLength={5}
                     keyboardType="numeric"
                 />
+
+                <View style={styles.imgcont}>
+                    {!image ? (
+                        <>
+                            <TouchableOpacity onPress={pickImage} style={styles.pickImage}>
+                                {isLoading ? (
+                                    <View style={styles.loadingcontainer}>
+                                        <ActivityIndicator color={"#ff0000"} animating size={"large"}></ActivityIndicator>
+                                    </View>
+                                ) : (
+                                    <Text style={styles.imagetext}>Görsel Ekleme</Text>
+                                )}
+                            </TouchableOpacity>
+                        </>
+                    ) : (
+                        <>
+                            {image && (
+                                <View style={styles.imageContainer}>
+                                    <Image source={{ uri: image }} />
+                                </View>
+                            )}
+                        </>
+                    )}
+                </View>
                 <TouchableOpacity style={styles.submitButton} onPress={createProduct}>
                     <Text style={styles.submitButtonText}>Gönder</Text>
                 </TouchableOpacity>
@@ -106,6 +186,36 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "white",
+    },
+    imgcont: {
+        borderRadius: 20,
+    },
+    pickImage: {
+        backgroundColor: "#E5E3DD",
+        padding: 15,
+        marginLeft: 10,
+        width: "50%",
+        borderRadius: 20,
+        marginBottom: 10,
+    },
+    imagetext: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#374151",
+        textAlign: "center",
+    },
+    imageContainer: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        margin: 20,
+        width: 100,
+        height: 100,
+    },
+    images: {
+        width: 100,
+        height: 100,
+        borderRadius: 40,
     },
     headerText: {
         fontSize: 24,
