@@ -278,6 +278,7 @@ const HomeScreen = () => {
                             </View>
                         </View>
 
+
                         <View style={styles.iconsContainer}>
                             <TouchableOpacity onPress={() => toggleFavorite(product.product_id)}>
                                 <HeartIcon size={24} color={favorites.some((favorite) => favorite.product_id === product.product_id) ? "red" : "gray"} />
@@ -289,6 +290,7 @@ const HomeScreen = () => {
                     </View>
                 ))}
             </ScrollView>
+
             <HomeNavbar navigation={navigation} />
         </View>
     );

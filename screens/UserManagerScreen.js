@@ -209,6 +209,7 @@ export default function UserManagerScreen() {
 
                 <TouchableOpacity onPress={() => navigation.navigate("Orders")} style={styles.logoutButton}>
                     <Text style={styles.buttonText}>Siparişlerim</Text>
+
                 </TouchableOpacity>
             </ScrollView>
             <HomeNavbar navigation={navigation} />
