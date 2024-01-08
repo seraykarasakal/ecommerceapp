@@ -63,7 +63,7 @@ const EditProduct = () => {
                             [
                                 {
                                     text: "Ok",
-                                    onPress: () => navigation.navigate("ListProducts"),
+                                    onPress: () => navigation.navigate("Dashboard"),
                                 },
                             ],
                             { cancelable: false }

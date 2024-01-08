@@ -15,7 +15,7 @@ export default function App() {
     useEffect(() => {
         db.transaction(function (txn) {
             txn.executeSql(
-                "CREATE TABLE IF NOT EXISTS table_products(product_id INTEGER PRIMARY KEY AUTOINCREMENT, product_name VARCHAR(30), product_description VARCHAR(255), product_price INT(5) )",
+                "CREATE TABLE IF NOT EXISTS table_products(product_id INTEGER PRIMARY KEY AUTOINCREMENT, product_name VARCHAR(30), product_description VARCHAR(255), product_price INT(5), image_uri VARCHAR)",
                 []
             );
         });
@@ -33,6 +33,21 @@ export default function App() {
 
         db.transaction(function (txn) {
             txn.executeSql("CREATE TABLE IF NOT EXISTS table_cart(product_id INTEGER, user_id VARCHAR(64))", []);
+        });
+
+        db.transaction(function (txn) {
+            console.log("order tablosu oluşturuluor");
+            txn.executeSql(
+                "CREATE TABLE IF NOT EXISTS table_orders(order_id INTEGER PRIMARY KEY AUTOINCREMENT, user_id VARCHAR(64), order_date DATETIME, total_amount INTEGER )",
+                []
+            );
+        });
+        db.transaction(function (txn) {
+            console.log("order tablosu oluşturuluor");
+            txn.executeSql(
+                "CREATE TABLE IF NOT EXISTS order_items(order_item_id INTEGER PRIMARY KEY AUTOINCREMENT, order_id INTEGER, product_id INTEGER, quantity INTEGER NULL )",
+                []
+            );
         });
     }, []);
 

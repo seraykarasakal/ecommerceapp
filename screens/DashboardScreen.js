@@ -1,7 +1,7 @@
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { signOut } from "firebase/auth";
 import { React, createContext, useEffect, useState } from "react";
-import { Alert, Dimensions, FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Dimensions, FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
 import { ArrowLeftIcon, ChevronDoubleRightIcon, TrashIcon } from "react-native-heroicons/solid";
 import { DatabaseConnection } from "../config/database-connection";
 import { auth } from "../config/firebase";
@@ -42,19 +42,18 @@ const DashboardScreen = () => {
     }, [isFocused, refresh]);
     let deleteProduct = (id) => {
         console.log(id + " ID");
-        alert("You are going to delete this product!");
         db.transaction((tx) => {
             tx.executeSql("DELETE  FROM table_products WHERE ? = product_id", [id], (tx, results) => {
                 if (results.rowsAffected > 0) {
                     Alert.alert(
-                        "Basarili!",
-                        "Ürün silme başarili!",
+                        "Başarılı",
+                        "Ürün silme işlemi başarılı!",
                         [
                             {
                                 text: "Ok",
                                 onPress: () => {
                                     handleRefresh();
-                                    navigation.navigate("ListProducts");
+                                    navigation.navigate("Dashboard");
                                 },
                             },
                         ],
@@ -67,19 +66,33 @@ const DashboardScreen = () => {
     let listProductsView = (item) => {
         return (
             <View key={item.product_id} style={styles.card}>
-                <View style={styles.productContainer}>
-                    <Text style={styles.textheader}>Id</Text>
-                    <Text style={styles.textbottom}>{item.product_id}</Text>
+                <View style={styles.productcard}>
+                    {!item.image_uri ? (
+                        <></>
+                    ) : (
+                        <>
+                            {item.image_uri && (
+                                <View style={styles.imageContainer}>
+                                    <Image source={{ uri: item.image_uri }} style={styles.images} />
+                                </View>
+                            )}
+                        </>
+                    )}
+                    <View style={styles.productInfo}>
+                        <Text style={styles.textheader}>Id</Text>
+                        <Text style={styles.textbottom}>{item.product_id}</Text>
 
-                    <Text style={styles.textheader}>Product Name</Text>
-                    <Text style={styles.textbottom}>{item.product_name}</Text>
+                        <Text style={styles.textheader}>Product Name</Text>
+                        <Text style={styles.textbottom}>{item.product_name}</Text>
 
-                    <Text style={styles.textheader}>Product Description</Text>
-                    <Text style={styles.textbottom}>{item.product_description}</Text>
+                        <Text style={styles.textheader}>Product Description</Text>
+                        <Text style={styles.textbottom}>{item.product_description}</Text>
 
-                    <Text style={styles.textheader}>Product Price</Text>
-                    <Text style={styles.textbottom}>{item.product_price}</Text>
+                        <Text style={styles.textheader}>Product Price</Text>
+                        <Text style={styles.textbottom}>{item.product_price}</Text>
+                    </View>
                 </View>
+
                 <View style={styles.ıconContainer}>
                     <TouchableOpacity onPress={() => navigation.navigate("EditProduct", { id: item.product_id })}>
                         <ChevronDoubleRightIcon size="20" color="black" />
@@ -123,6 +136,16 @@ const styles = StyleSheet.create({
         justifyContent: "space-evenly",
         marginBottom: 6,
     },
+    productcard: {
+        flex: 1,
+        flexDirection: "row",
+        justifyContent: "flex-start",
+    },
+    productInfo: {
+        flex: 1,
+        flexDirection: "column",
+        justifyContent: "flex-start",
+    },
     card: {
         flexDirection: "row",
         backgroundColor: "#a29bfe",
@@ -135,6 +158,21 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.75,
         marginTop: 20,
         padding: 30,
+    },
+    imgcont: {
+        flex: 1,
+        alignItems: "flex-start",
+        justifyContent: "flex-start",
+    },
+    imageContainer: {
+        flex: 1,
+        alignItems: "flex-start",
+        justifyContent: "flex-start",
+    },
+    images: {
+        width: 80,
+        height: 80,
+        borderRadius: 20,
     },
     ıconContainer: {
         gap: 10,
